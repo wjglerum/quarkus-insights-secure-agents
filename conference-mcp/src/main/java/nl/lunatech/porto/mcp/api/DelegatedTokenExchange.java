@@ -28,8 +28,10 @@ import java.util.Map;
  * standard exchange instead: same user, same audience, no {@code act}. Keycloak refuses a standard
  * exchange for a token that does carry {@code may_act}, so the two paths cannot be mixed up.
  *
- * <p>Quarkus' token propagation filter cannot send an {@code actor_token} yet, which is why this
- * is done here and not with {@code quarkus.rest-client-oidc-token-propagation.exchange-token}.
+ * <p>Quarkus' token propagation filter only sends a {@code subject_token}. {@code OidcClient} can send
+ * an {@code actor_token} as an extra grant parameter, but nothing wires that up for a delegated
+ * exchange yet, which is why this is done here and not with
+ * {@code quarkus.rest-client-oidc-token-propagation.exchange-token}.
  */
 // Looked up programmatically from TokenExchangeFilter, so Arc must not remove it as unused.
 @Unremovable

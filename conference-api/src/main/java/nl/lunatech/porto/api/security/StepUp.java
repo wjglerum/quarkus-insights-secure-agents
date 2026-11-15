@@ -55,7 +55,7 @@ public class StepUp {
             throw new WebApplicationException(Response.status(Response.Status.UNAUTHORIZED)
                     .header("WWW-Authenticate", "Bearer error=\"insufficient_user_authentication\", "
                             + "error_description=\"A different authentication level is required\", "
-                            + "acr_values=\"" + MFA_ACR + "\", max_age=" + MAX_AGE_SECONDS)
+                            + "acr_values=\"" + MFA_ACR + "\", max_age=\"" + MAX_AGE_SECONDS + "\"")
                     .build());
         }
     }

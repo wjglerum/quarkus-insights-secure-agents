@@ -144,7 +144,7 @@ The exchange is a **delegated** one (Keycloak 26.8 token exchange delegation, a 
 3. `conference-mcp` sends the user's token as the `subject_token` and its own service-account token as the `actor_token`. Keycloak returns a token for the same user with `act: {client_id: conference-mcp}`.
 4. `conference-api` records the `act` client as `token_act` in the audit log, and trusts the hop headers only when the acting client (`act`, else `azp`) is `conference-mcp`.
 
-Quarkus' token propagation filter cannot send an `actor_token` yet, so the exchange lives in `DelegatedTokenExchange` instead of `quarkus.rest-client-oidc-token-propagation.exchange-token`. A token without `may_act` (the Dev UI, or a client that did not ask for delegation) gets the standard exchange: same user, same audience, no `act`. Keycloak refuses to mix them up: a standard exchange of a token with `may_act` fails, and so does a delegated exchange without it. The `conference-mcp` terminal logs which one ran.
+Quarkus' token propagation filter only sends a `subject_token`, so it can't do a delegated exchange on its own. `OidcClient.getTokens(...)` does accept extra grant parameters, and `DelegatedTokenExchange` uses that to add the `actor_token`; nothing wires this up for you yet, so the exchange lives there instead of in `quarkus.rest-client-oidc-token-propagation.exchange-token`. A token without `may_act` (the Dev UI, or a client that did not ask for delegation) gets the standard exchange: same user, same audience, no `act`. Keycloak refuses to mix them up: a standard exchange of a token with `may_act` fails, and so does a delegated exchange without it. The `conference-mcp` terminal logs which one ran.
 
 ### What the exchange still drops
 
