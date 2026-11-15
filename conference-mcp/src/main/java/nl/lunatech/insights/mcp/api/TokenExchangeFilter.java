@@ -34,7 +34,8 @@ public class TokenExchangeFilter implements ResteasyReactiveClientRequestFilter 
                 },
                 failure -> {
                     Log.warnf("Token exchange failed, not calling conference-api: %s", failure.getMessage());
-                    requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                    // Not a 401: the backend never saw a token, and signing in again would not help.
+                    requestContext.abortWith(Response.status(Response.Status.BAD_GATEWAY).build());
                     requestContext.resume();
                 });
     }

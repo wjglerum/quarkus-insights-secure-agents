@@ -99,6 +99,10 @@ public interface MeConferenceApi {
                         + (challenge == null ? "" : " (" + challenge + ")")
                         + ". Sign in again to get a fresh token.");
             }
+            case 403 -> new ToolCallException("forbidden: " + body);
+            // Set by TokenExchangeFilter when Keycloak refused the exchange; conference-api was not called.
+            case 502 -> new ToolCallException("token_exchange_failed: could not get a token for the backend. "
+                    + "Signing in again will not help; this is a server configuration problem.");
             case 422 -> new ToolCallException("rejected: "
                     + (body != null && body.contains("session_not_started") ? "session_not_started" : body));
             default -> new ToolCallException("backend_error: " + body);

@@ -67,7 +67,7 @@ class ChatPlaywrightTest {
         login(page, "willem.jan");
 
         Locator topbar = page.locator("header.topbar");
-        assertThat(topbar.locator(".brand-title").innerText()).contains("Practical MCP Security in Action");
+        assertThat(topbar.locator(".brand-title").innerText()).contains("Secure AI agents with Quarkus LangChain4j");
         assertThat(topbar.locator(".who").innerText()).contains("Willem Jan Glerum");
 
         assertThat(page.locator(".identity").innerText())

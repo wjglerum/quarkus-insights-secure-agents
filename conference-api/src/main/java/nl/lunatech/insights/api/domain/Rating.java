@@ -36,11 +36,11 @@ public class Rating extends PanacheEntity {
     public OffsetDateTime createdAt;
 
     public static List<Rating> listForSession(Long sessionId) {
-        return list("session.id", sessionId);
+        return list("session.id = ?1 order by createdAt, id", sessionId);
     }
 
     public static List<Rating> listForAttendee(Long attendeeId) {
-        return list("attendee.id", attendeeId);
+        return list("attendee.id = ?1 order by createdAt, id", attendeeId);
     }
 
     public static Rating findOne(Long attendeeId, Long sessionId) {
