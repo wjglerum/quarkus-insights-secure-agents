@@ -43,7 +43,7 @@ Useful URLs in dev mode:
 
 Public (no auth):
 
-- `GET /api/v1/sessions` (`?speaker_id=`, `?speaker_name=`, `?q=`)
+- `GET /api/v1/sessions` (`?speaker_name=`, `?q=`)
 - `GET /api/v1/sessions/{id}`
 - `GET /api/v1/sessions/current?at=`
 - `GET /api/v1/sessions/next?at=&limit=`

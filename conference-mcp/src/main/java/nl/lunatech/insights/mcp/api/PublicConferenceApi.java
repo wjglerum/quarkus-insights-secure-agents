@@ -19,7 +19,6 @@ public interface PublicConferenceApi {
     @GET
     @Path("/sessions")
     List<SessionDto> listSessions(
-            @QueryParam("speaker_id") Long speakerId,
             @QueryParam("speaker_name") String speakerName,
             @QueryParam("q") String q);
 

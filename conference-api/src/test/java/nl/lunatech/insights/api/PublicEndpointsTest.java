@@ -32,12 +32,8 @@ class PublicEndpointsTest {
     }
 
     @Test
-    void filtersBySpeakerId() {
-        Integer speakerId = given().when().get("/api/v1/speakers")
-                .then().statusCode(200)
-                .extract().jsonPath()
-                .getInt("find { it.name == 'Willem Jan Glerum' }.id");
-        given().queryParam("speaker_id", speakerId)
+    void filtersBySpeakerName() {
+        given().queryParam("speaker_name", "willem jan")
                 .when().get("/api/v1/sessions")
                 .then().statusCode(200)
                 .body("size()", greaterThan(0))

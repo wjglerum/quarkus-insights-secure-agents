@@ -48,14 +48,10 @@ public class Session extends PanacheEntity {
         return startsAt.isBefore(other.endsAt) && other.startsAt.isBefore(endsAt);
     }
 
-    /** Schedule search with any combination of speaker id, speaker name, and free-text filters. */
-    public static List<Session> search(Long speakerId, String speakerName, String q) {
+    /** Schedule search by speaker name and free text, either or both. */
+    public static List<Session> search(String speakerName, String q) {
         List<String> conditions = new ArrayList<>();
         Map<String, Object> params = new HashMap<>();
-        if (speakerId != null) {
-            conditions.add("s.speaker.id = :speakerId");
-            params.put("speakerId", speakerId);
-        }
         if (speakerName != null && !speakerName.isBlank()) {
             conditions.add("lower(s.speaker.name) like :speakerName");
             params.put("speakerName", "%" + speakerName.toLowerCase() + "%");

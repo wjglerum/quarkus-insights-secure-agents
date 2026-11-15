@@ -36,7 +36,7 @@ public class PublicTools {
             @ToolArg(name = "speaker_name",
                     description = "Speaker name (case-insensitive substring match).",
                     required = false) String speakerName) {
-        return api.listSessions(null, speakerName, query);
+        return api.listSessions(speakerName, query);
     }
 
     @Tool(name = "get_session",

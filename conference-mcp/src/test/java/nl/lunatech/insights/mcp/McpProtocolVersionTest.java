@@ -71,7 +71,7 @@ class McpProtocolVersionTest {
 
     @Test
     void statelessClientCallsToolsWithoutASession() {
-        when(api.listSessions(null, null, "MCP")).thenReturn(List.of(new SessionDto(1L,
+        when(api.listSessions(null, "MCP")).thenReturn(List.of(new SessionDto(1L,
                 "Practical MCP Security in Action", "OAuth 2.1 done right.", "Room 7",
                 OffsetDateTime.parse("2026-11-16T14:45:00+01:00"), OffsetDateTime.parse("2026-11-16T15:35:00+01:00"),
                 false, null, new SpeakerRef(1L, "Willem Jan Glerum"))));

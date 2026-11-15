@@ -23,11 +23,9 @@ public class SessionResource {
 
     @GET
     public List<SessionDto> list(
-            @QueryParam("speaker_id") Long speakerId,
             @QueryParam("speaker_name") String speakerName,
-            @QueryParam("q") String q
-    ) {
-        return Session.search(speakerId, speakerName, q).stream().map(SessionDto::of).toList();
+            @QueryParam("q") String q) {
+        return Session.search(speakerName, q).stream().map(SessionDto::of).toList();
     }
 
     @GET

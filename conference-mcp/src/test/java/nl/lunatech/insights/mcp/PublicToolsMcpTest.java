@@ -56,7 +56,7 @@ class PublicToolsMcpTest {
 
     @Test
     void listSessionsPassesTheQueryThroughAndReturnsMatches() {
-        when(api.listSessions(null, null, "MCP"))
+        when(api.listSessions(null, "MCP"))
                 .thenReturn(List.of(session(1L, "MCP Security in Practice")));
 
         McpStreamableTestClient client = McpTestClients.connectAs("attendee", Set.of("attendee"));
@@ -76,7 +76,7 @@ class PublicToolsMcpTest {
     @Test
     void getSessionResolvesByQueryWhenNoIdIsGiven() {
         // The tool first resolves the title to an id via listSessions, then fetches it.
-        when(api.listSessions(null, null, "Security"))
+        when(api.listSessions(null, "Security"))
                 .thenReturn(List.of(session(42L, "MCP Security in Practice")));
         when(api.getSession(42L))
                 .thenReturn(session(42L, "MCP Security in Practice"));
@@ -97,7 +97,7 @@ class PublicToolsMcpTest {
 
     @Test
     void getSessionReturnsAToolErrorWhenTheQueryMatchesNothing() {
-        when(api.listSessions(null, null, "does-not-exist"))
+        when(api.listSessions(null, "does-not-exist"))
                 .thenReturn(List.of());
 
         McpStreamableTestClient client = McpTestClients.connectAs("attendee", Set.of("attendee"));

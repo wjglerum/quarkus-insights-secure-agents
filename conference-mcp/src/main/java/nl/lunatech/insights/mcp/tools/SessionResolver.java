@@ -43,7 +43,7 @@ public class SessionResolver {
         if (sessionQuery == null || sessionQuery.isBlank()) {
             throw new ToolCallException("invalid_argument: provide either session_id or session_query");
         }
-        return api.listSessions(null, null, stripFiller(sessionQuery)).stream()
+        return api.listSessions(null, stripFiller(sessionQuery)).stream()
                 .findFirst()
                 .map(SessionDto::id)
                 .orElseThrow(() -> new ToolCallException(
