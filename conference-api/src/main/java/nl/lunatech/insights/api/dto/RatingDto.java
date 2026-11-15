@@ -1,0 +1,31 @@
+package nl.lunatech.insights.api.dto;
+
+import nl.lunatech.insights.api.domain.Rating;
+
+import java.time.OffsetDateTime;
+
+public record RatingDto(
+        Long id,
+        Long sessionId,
+        String sessionTitle,
+        String attendeeDisplayName,
+        int stars,
+        String comment,
+        OffsetDateTime createdAt
+) {
+    public static RatingDto of(Rating r) {
+        return new RatingDto(
+                r.id,
+                r.session.id,
+                r.session.title,
+                r.attendee.displayName,
+                r.stars,
+                r.comment,
+                r.createdAt);
+    }
+
+    /** The same rating without the attendee's name: what a speaker sees in their feedback. */
+    public static RatingDto anonymous(Rating r) {
+        return new RatingDto(r.id, r.session.id, r.session.title, null, r.stars, r.comment, r.createdAt);
+    }
+}

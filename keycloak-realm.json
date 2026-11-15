@@ -455,7 +455,7 @@
       "type" : "otp",
       "userLabel" : "Demo authenticator",
       "createdDate" : 1793361699942,
-      "secretData" : "{\"value\":\"portomcp2026stepupseed\"}",
+      "secretData" : "{\"value\":\"insightsmcp2026stepupseed\"}",
       "credentialData" : "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA1\"}"
     } ],
     "disableableCredentialTypes" : [ ],
@@ -534,7 +534,7 @@
       "type" : "otp",
       "userLabel" : "Demo authenticator",
       "createdDate" : 1793361699920,
-      "secretData" : "{\"value\":\"portomcp2026stepupseed\"}",
+      "secretData" : "{\"value\":\"insightsmcp2026stepupseed\"}",
       "credentialData" : "{\"subType\":\"totp\",\"digits\":6,\"counter\":0,\"period\":30,\"algorithm\":\"HmacSHA1\"}"
     } ],
     "disableableCredentialTypes" : [ ],

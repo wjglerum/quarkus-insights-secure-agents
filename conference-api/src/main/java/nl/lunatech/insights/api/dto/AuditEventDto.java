@@ -1,0 +1,25 @@
+package nl.lunatech.insights.api.dto;
+
+import nl.lunatech.insights.api.domain.AuditEvent;
+
+import java.time.OffsetDateTime;
+
+public record AuditEventDto(
+        Long id,
+        String attendeeSubject,
+        String action,
+        String target,
+        String tokenAcr,
+        String tokenAmr,
+        String executedByClient,
+        String tokenAct,
+        String tokenIss,
+        OffsetDateTime createdAt,
+        String detail
+) {
+    public static AuditEventDto of(AuditEvent e) {
+        return new AuditEventDto(
+                e.id, e.attendeeSubject, e.action, e.target,
+                e.tokenAcr, e.tokenAmr, e.executedByClient, e.tokenAct, e.tokenIss, e.createdAt, e.detail);
+    }
+}
