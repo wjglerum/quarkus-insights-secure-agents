@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Calls one MCP tool directly, without a model in between. Used by the llm and scripted planners. */
+/** Calls one MCP tool directly, without a model in between. Used by the scripted planner. */
 @ApplicationScoped
 public class ToolDispatcher {
 

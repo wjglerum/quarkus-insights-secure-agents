@@ -6,7 +6,6 @@ a token obtained through RFC 8693 token exchange, never the user's own token.
 
 - Port: 8081
 - MCP endpoint (streamable HTTP): `http://localhost:8081/mcp`
-- Health: `GET /q/health/ready`
 
 Start it with `./mvnw quarkus:dev` from this directory. Dev Services provisions a
 shared Keycloak using the realm at `../keycloak-realm.json`.

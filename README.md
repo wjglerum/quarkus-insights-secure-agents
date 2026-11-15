@@ -5,13 +5,13 @@ Built on [quarkus-mcp-jfall-2026](https://github.com/wjglerum/quarkus-mcp-jfall-
 
 ## What changed from the original demo
 
-| | Original (`demo.planner=llm`) | This repo (`demo.planner=agent`, default) |
+| | Original | This repo |
 |---|---|---|
-| Model call | `LlmToolPlanner`: one `ChatModel.chat()`, picks one tool | `ConferenceAgent`: a `@RegisterAiService` that may call several tools |
+| Model call | One `ChatModel.chat()`, picks one tool | `ConferenceAgent`: a `@RegisterAiService` that may call several tools |
 | Tool results | Never go back to the model | Go back to the model, so a comment in a tool result can steer it |
 | Guardrails | None | Input, tool call, tool result and output, plus an optional hardened prompt |
 
-Both planner modes still fall back to the scripted prompts when the model is unreachable, and `DEMO_PLANNER=scripted` still works with no network.
+The agent falls back to the scripted prompts when the model is unreachable, and `DEMO_PLANNER=scripted` works with no network.
 
 ## The guardrails
 

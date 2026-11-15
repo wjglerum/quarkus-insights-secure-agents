@@ -17,8 +17,8 @@ import java.time.Duration;
  * the attendee scope.
  *
  * <p>When a user request is in flight, the user's access token is propagated so the action is
- * recorded and audited under their identity. Outside any request, for example the readiness
- * probe that lists the MCP tools, there is no user token, so a service-account token from the
+ * recorded and audited under their identity. Outside any request (the MCP client's own
+ * connection handshake) there is no user token, so a service-account token from the
  * client-credentials grant is used instead. The service account carries the attendee role in
  * the realm, so it satisfies the endpoint gate.
  */

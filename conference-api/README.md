@@ -16,10 +16,8 @@ Part of a three-app monorepo. See `../README.md` for the architecture and
   `../keycloak-realm.json`)
 - SmallRye OpenAPI + Swagger UI
 - Hibernate Validator
-- SmallRye Health
 
-No Flyway. Hibernate generates the schema (`drop-and-create` in dev and test,
-`none` in prod).
+No Flyway. Hibernate generates the schema (`drop-and-create`).
 
 ## Running
 
@@ -96,11 +94,8 @@ open audit feed, and step-up + reversible cancellation for the speaker.
 
 ## Configuration
 
-See `src/main/resources/application.properties`. Production needs:
-
-- `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`
-- `OIDC_AUTH_SERVER_URL`, `OIDC_CLIENT_ID` (defaults to `conference-api`)
-- `DEMO_NOW` if you want a fixed clock; otherwise unset.
+See `src/main/resources/application.properties`. Dev Services provides Postgres and
+Keycloak. Set `DEMO_NOW` to move the demo clock.
 
 ## Packaging
 

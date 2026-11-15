@@ -34,10 +34,10 @@ What the audience sees in Demo 4: `conference-mcp` checks the `acr` on your toke
 |----------|---------|--------------|
 | `DEMO_NOW` | Override the "current time" used by `whats_on_now`, `whats_next`, and the rating cutoff. | `2026-11-16T15:10:00+01:00` |
 | `ANTHROPIC_API_KEY` | The model behind `conference-chat` (Claude Sonnet). Without it the chat falls back to the scripted planner. | required in Terminal 3 |
-| `DEMO_PLANNER` | `agent` is the `@RegisterAiService` agent that may call several tools and reads their results. `llm` is the old single-tool planner. `scripted` never calls the model: use it when the network is gone. | `agent` |
+| `DEMO_PLANNER` | `agent` is the `@RegisterAiService` agent that may call several tools and reads their results. `scripted` never calls the model: use it when the network is gone. | `agent` |
 | `DEMO_GUARDRAILS` | Guardrails switched on at start: `none`, `all`, or a list. The sidebar switches change them live. | `none`, so the first attack lands |
 
-`OIDC_AUTH_SERVER_URL`, `CONFERENCE_API_URL`, `CONFERENCE_MCP_URL`, and database credentials are only needed in `%prod`. In dev mode Quarkus Dev Services wires everything automatically.
+Dev Services wires Keycloak and Postgres automatically; there is no production profile.
 
 ## Boot order
 

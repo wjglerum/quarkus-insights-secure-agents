@@ -1,4 +1,4 @@
-package nl.lunatech.insights.chat.llm;
+package nl.lunatech.insights.chat.web;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -45,13 +45,16 @@ public class ScriptedPlanner {
             new Rule(List.of("coming up next"), "whats_next", Map.of()),
             new Rule(List.of("right now"), "whats_on_now", Map.of()));
 
-    public Optional<LlmToolPlanner.Plan> plan(String userPrompt) {
+    public record Call(String tool, Map<String, Object> args) {
+    }
+
+    /** Empty when the prompt is not one of the rehearsed demo prompts. */
+    public Optional<Call> plan(String userPrompt) {
         String prompt = userPrompt == null ? "" : userPrompt.toLowerCase(Locale.ROOT);
         return RULES.stream()
                 .filter(r -> r.matches(prompt))
                 .findFirst()
-                .map(r -> LlmToolPlanner.Plan.tool(r.tool(), r.args(),
-                        "Scripted fallback (LLM unavailable) picked tool " + r.tool() + "."));
+                .map(r -> new Call(r.tool(), r.args()));
     }
 
     private static Map<String, Object> args(Object... kv) {

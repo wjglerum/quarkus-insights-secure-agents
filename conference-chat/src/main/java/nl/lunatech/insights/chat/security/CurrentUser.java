@@ -6,12 +6,9 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
-import java.util.Set;
+import java.util.stream.StreamSupport;
 
-/**
- * The caller's identity, derived once from the OIDC tokens. Shared by the chat page (Qute)
- * and the identity endpoint (JSON) so the claim extraction lives in one place.
- */
+/** The caller's identity, shown on the chat page (Qute) and by {@code /api/me} (JSON). */
 @RequestScoped
 public class CurrentUser {
 
@@ -26,23 +23,33 @@ public class CurrentUser {
     SecurityIdentity identity;
 
     public String subject() {
-        return JwtClaims.string(accessToken, "preferred_username", accessToken.getSubject());
+        return claim(accessToken, "preferred_username", accessToken.getSubject());
     }
 
     public String name() {
-        return JwtClaims.displayName(idToken, accessToken);
+        return claim(idToken, "name", claim(idToken, "preferred_username", accessToken.getSubject()));
     }
 
     public String rolesDisplay() {
-        Set<String> roles = identity.getRoles();
-        return roles.isEmpty() ? "(none)" : String.join(", ", roles);
+        return identity.getRoles().isEmpty() ? "(none)" : String.join(", ", identity.getRoles());
     }
 
     public String acr() {
-        return JwtClaims.string(accessToken, "acr", "1");
+        return claim(accessToken, "acr", "1");
     }
 
     public String amrDisplay() {
-        return JwtClaims.joinedStringList(accessToken, "amr", "(none)");
+        Object amr = accessToken.getClaim("amr");
+        if (amr instanceof Iterable<?> values) {
+            String joined = String.join(", ", StreamSupport.stream(values.spliterator(), false)
+                    .map(String::valueOf).toList());
+            return joined.isEmpty() ? "(none)" : joined;
+        }
+        return amr == null ? "(none)" : String.valueOf(amr);
+    }
+
+    private static String claim(JsonWebToken jwt, String name, String defaultValue) {
+        Object value = jwt == null ? null : jwt.getClaim(name);
+        return value == null || value.toString().isBlank() ? defaultValue : value.toString();
     }
 }

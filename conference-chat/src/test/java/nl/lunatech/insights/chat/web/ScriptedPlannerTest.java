@@ -1,6 +1,5 @@
-package nl.lunatech.insights.chat.llm;
+package nl.lunatech.insights.chat.web;
 
-import nl.lunatech.insights.chat.web.QuickPrompts;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,7 +15,7 @@ class ScriptedPlannerTest {
             if ("attack".equals(q.tier())) {
                 continue; // guardrail demos for agent mode, not tool shortcuts
             }
-            LlmToolPlanner.Plan plan = planner.plan(q.label()).orElseThrow(
+            ScriptedPlanner.Call plan = planner.plan(q.label()).orElseThrow(
                     () -> new AssertionError("no scripted plan for: " + q.label()));
             assertEquals(q.suggestedTool(), plan.tool(), q.label());
         }
@@ -26,11 +25,11 @@ class ScriptedPlannerTest {
     void runbookPromptsOutsideTheSidebarAreCovered() {
         assertEquals("bookmark_session",
                 planner.plan("Also add the Practical MCP Security talk.").orElseThrow().tool());
-        LlmToolPlanner.Plan undo = planner.plan(
+        ScriptedPlanner.Call undo = planner.plan(
                 "Undo the cancellation of my MCP Security talk, reason: back on track.").orElseThrow();
         assertEquals("cancel_my_session", undo.tool());
         assertEquals(true, undo.args().get("undo"));
-        LlmToolPlanner.Plan other = planner.plan(
+        ScriptedPlanner.Call other = planner.plan(
                 "Cancel the Gatherers talk, reason: rescheduled by organisers.").orElseThrow();
         assertEquals("cancel_my_session", other.tool());
         assertEquals("Gatherers", other.args().get("session_query"));

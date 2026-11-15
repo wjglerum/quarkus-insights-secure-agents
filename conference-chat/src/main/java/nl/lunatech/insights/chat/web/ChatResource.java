@@ -13,8 +13,6 @@ import nl.lunatech.insights.chat.agent.ConferenceAgent;
 import nl.lunatech.insights.chat.agent.GuardrailSwitches;
 import nl.lunatech.insights.chat.agent.TurnLog;
 import nl.lunatech.insights.chat.agent.TurnLog.ToolCall;
-import nl.lunatech.insights.chat.llm.LlmToolPlanner;
-import nl.lunatech.insights.chat.llm.ScriptedPlanner;
 import nl.lunatech.insights.chat.web.ToolDispatcher.ToolResult;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -36,9 +34,6 @@ public class ChatResource {
     ToolDispatcher dispatcher;
 
     @Inject
-    LlmToolPlanner planner;
-
-    @Inject
     ScriptedPlanner scripted;
 
     @Inject
@@ -50,12 +45,7 @@ public class ChatResource {
     @Inject
     TurnLog turnLog;
 
-    /**
-     * "agent" (default): the {@link ConferenceAgent} AI service with guardrails; it may call several
-     * tools and reads their results. "llm": the single-tool planner, one tool per prompt, results never go
-     * back to the model. "scripted": no model at all. Both model modes fall back to the scripted
-     * planner when the model is unreachable.
-     */
+    /** "agent" (default): the {@link ConferenceAgent}. "scripted": never call the model (no wifi). */
     @ConfigProperty(name = "demo.planner", defaultValue = "agent")
     String plannerMode;
 
@@ -64,40 +54,41 @@ public class ChatResource {
     public ChatTurn send(ChatRequest req) {
         String prompt = req == null || req.prompt() == null ? "" : req.prompt().trim();
         if (prompt.isEmpty()) {
-            return ChatTurn.of(prompt, "Type a prompt to get started.", List.of());
+            return new ChatTurn(prompt, "Type a prompt to get started.", List.of());
         }
-        if ("agent".equalsIgnoreCase(plannerMode)) {
-            return agentTurn(prompt);
+        if ("scripted".equalsIgnoreCase(plannerMode)) {
+            return scriptedTurn(prompt).orElseGet(() -> new ChatTurn(prompt,
+                    "Scripted mode only knows the demo prompts in the sidebar.", List.of()));
         }
-        return plannerTurn(prompt);
+        return agentTurn(prompt);
     }
 
     private ChatTurn agentTurn(String prompt) {
         turnLog.userPrompt(prompt);
         try {
             String answer = agent.chat(prompt, switches.hardening());
-            return ChatTurn.of(prompt, answer, toResults(turnLog.calls()));
+            return new ChatTurn(prompt, answer, toResults(turnLog.calls()));
         } catch (RuntimeException e) {
             List<ToolResult> results = new ArrayList<>(toResults(turnLog.calls()));
             Throwable input = causeOfType(e, InputGuardrailException.class);
             if (input != null) {
                 results.add(ToolResult.blocked("input guardrail", Map.of("prompt", prompt),
                         message(input), "input guardrail"));
-                return ChatTurn.of(prompt, "Blocked before the model saw it.", results);
+                return new ChatTurn(prompt, "Blocked before the model saw it.", results);
             }
             Throwable output = causeOfType(e, OutputGuardrailException.class);
             if (output != null) {
                 results.add(ToolResult.blocked("output guardrail", Map.of(), message(output), "output guardrail"));
-                return ChatTurn.of(prompt, "The answer was blocked before it reached you.", results);
+                return new ChatTurn(prompt, "The answer was blocked before it reached you.", results);
             }
             if (results.stream().anyMatch(ToolResult::stepUpRequired)) {
-                return ChatTurn.of(prompt, "This needs a stronger login first.", results);
+                return new ChatTurn(prompt, "This needs a stronger login first.", results);
             }
             LOG.warnf(e, "Agent turn failed");
             // Fall back to the scripted planner only when no tool ran yet: running the prompt
             // again after a tool call could bookmark or cancel twice.
             Optional<ChatTurn> fallback = results.isEmpty() ? scriptedTurn(prompt) : Optional.empty();
-            return fallback.orElseGet(() -> ChatTurn.of(prompt, "Agent failed: "
+            return fallback.orElseGet(() -> new ChatTurn(prompt, "Agent failed: "
                     + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : ": " + e.getMessage()), results));
         }
     }
@@ -138,37 +129,14 @@ public class ChatResource {
         return msg;
     }
 
-    private ChatTurn plannerTurn(String prompt) {
-        if ("scripted".equalsIgnoreCase(plannerMode)) {
-            return scriptedTurn(prompt).orElseGet(() -> ChatTurn.of(prompt,
-                    "Scripted mode only knows the demo prompts in the sidebar.", List.of()));
-        }
-        LlmToolPlanner.Plan plan = planner.plan(prompt);
-        if (plan.error() != null) {
-            return scriptedTurn(prompt).orElseGet(() -> ChatTurn.of(prompt, plan.error(), List.of()));
-        }
-        if (!plan.hasTool()) {
-            return ChatTurn.of(prompt, plan.note(), List.of());
-        }
-        return toolTurn(prompt, plan);
-    }
-
     /** Empty when the prompt is not one of the rehearsed demo prompts. */
     private Optional<ChatTurn> scriptedTurn(String prompt) {
-        return scripted.plan(prompt).map(plan -> toolTurn(prompt, plan));
-    }
-
-    private ChatTurn toolTurn(String prompt, LlmToolPlanner.Plan plan) {
-        return ChatTurn.of(prompt, plan.note(), List.of(dispatcher.invoke(plan.tool(), plan.args())));
+        return scripted.plan(prompt).map(call -> new ChatTurn(prompt,
+                "Scripted fallback (LLM unavailable) picked tool " + call.tool() + ".",
+                List.of(dispatcher.invoke(call.tool(), call.args()))));
     }
 
     public record ChatRequest(String prompt) {}
 
-    /** {@code result} is the last tool call, kept for the single-tool planner UI; {@code results} has every call in order. */
-    public record ChatTurn(String prompt, String note, ToolResult result, List<ToolResult> results) {
-        public static ChatTurn of(String prompt, String note, List<ToolResult> results) {
-            ToolResult last = results.isEmpty() ? null : results.get(results.size() - 1);
-            return new ChatTurn(prompt, note, last, results);
-        }
-    }
+    public record ChatTurn(String prompt, String note, List<ToolResult> results) {}
 }

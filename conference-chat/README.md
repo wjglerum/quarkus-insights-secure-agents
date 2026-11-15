@@ -24,8 +24,7 @@ The app listens on `http://localhost:8082/`. Anonymous requests redirect to Keyc
 monorepo-root `keycloak-realm.json`.
 
 `conference-mcp` (port 8081) and `conference-api` (port 8080) must be running for tool calls to
-succeed. The readiness probe at `/q/health/ready` is UP only when MCP tool discovery returns at
-least one tool.
+succeed.
 
 Without an API key, or when the model is unreachable, the chat falls back to `ScriptedPlanner`,
 which only understands the demo prompts in the sidebar.
@@ -40,7 +39,6 @@ which only understands the demo prompts in the sidebar.
 | `GET /api/guardrails`, `POST /api/guardrails/{key}` | authenticated | Read and flip the guardrail switches. Demo only. |
 | `GET /step-up` | authenticated, `acr=urn:insights:mfa` | Opened in a popup; triggers the MFA login and signals the chat when done. |
 | `GET /logout` | authenticated | RP-initiated logout at Keycloak. |
-| `GET /q/health/ready` | public | Includes the `mcp-conference` check. |
 
 Static assets (`/chat.css`, `/chat.js`, `/favicon.ico`) are public. An unauthenticated `/api/*`
 call gets a plain 401 instead of a login redirect (`ApiAwareAuthMechanism`).
@@ -72,8 +70,7 @@ re-enables OIDC and Keycloak through a `QuarkusTestProfile`.
 | `quarkus-qute` + `quarkus-rest-qute` | Server-rendered chat shell. |
 | `quarkus-langchain4j-mcp` | MCP client to `conference-mcp`. |
 | `quarkus-langchain4j-anthropic` | Anthropic Claude provider. |
-| `quarkus-oidc-client` | Service-account token for MCP calls outside a user request, such as the readiness probe. |
-| `quarkus-smallrye-health` | Liveness + readiness. |
+| `quarkus-oidc-client` | Service-account token for MCP calls outside a user request. |
 
 The LangChain4j extensions come from the Quarkiverse BOM
 (`io.quarkiverse.langchain4j:quarkus-langchain4j-bom`), imported next to the Quarkus platform BOM.
@@ -83,7 +80,7 @@ The LangChain4j extensions come from the Quarkiverse BOM
 | Env var | Purpose | Default |
 |---------|---------|---------|
 | `ANTHROPIC_API_KEY` | API key for Claude. | unset (scripted fallback) |
-| `DEMO_PLANNER` | `agent`: the AI service with guardrails. `llm`: the original single-tool planner, tool results never reach the model. `scripted`: no model at all. | `agent` |
+| `DEMO_PLANNER` | `agent`: the AI service with guardrails. `scripted`: no model at all. | `agent` |
 | `DEMO_GUARDRAILS` | Guardrails switched on at start: `none`, `all`, or a list of `input,prompt,tool-intent,tool-output,output`. | `none` |
 | `CONFERENCE_MCP_URL` | MCP endpoint (streamable HTTP). | `http://localhost:8081/mcp` |
 

@@ -54,7 +54,3 @@ These are deliberate, and each should be called out if someone asks:
 - **Guardrail switches.** Every guardrail in `conference-chat` can be switched off from the sidebar, and all are off at start so the first attack lands (`GuardrailSwitches`, `demo.guardrails.enabled`). In a real application they are always on.
 - **Scripted fallback planner.** If the LLM is unreachable, `conference-chat` maps the rehearsed prompts to tool calls itself and says so in the reply. The MCP calls, tokens and audit trail are identical.
 - **Demo clock.** `DEMO_NOW` pins "now" to 16 November 2026, 15:10 venue time (Europe/Amsterdam, CET), halfway through the MCP talk, so `whats_on_now` and the rating cutoff behave the same in every rehearsal.
-
-## Production configuration
-
-The `%prod` profile has no fallback values for the auth server URL, client secrets or database credentials. A missing variable fails startup instead of silently using a demo value.

@@ -14,9 +14,9 @@ import nl.lunatech.insights.chat.agent.tools.GuardedToolProviderSupplier;
  * The conference companion as a real agent: the model picks tools from the conference MCP
  * server, reads their results and decides what to do next, possibly calling more tools.
  *
- * <p>Unlike {@code LlmToolPlanner}, tool results go back to the model. That is what makes an
- * agent useful, and it is also what lets text in a tool result (an attendee's comment, say)
- * steer the agent. The guardrails exist for exactly that.
+ * <p>Tool results go back to the model. That is what makes an agent useful, and it is also what
+ * lets text in a tool result (an attendee's comment, say) steer the agent. The guardrails exist
+ * for exactly that.
  *
  * <p>Three layers, each switchable at runtime from the chat sidebar for the demo:
  * <ul>
