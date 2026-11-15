@@ -1,0 +1,9 @@
+/.idea/
+/.project
+/.settings/
+*.iml
+
+# Local agent tooling
+AGENTS.md
+CLAUDE.md
+.mcp.json

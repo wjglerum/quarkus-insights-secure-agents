@@ -1,0 +1,201 @@
+{
+  "_note": "Fictional agenda for the Quarkus Insights #268 demo (DemoConf 2026, 16 November 2026). Speakers and talks are made up, except \"Practical MCP Security in Action\", which the demos and tests rely on. One speaker per session.",
+  "year": 2026,
+  "timezone": "Europe/Amsterdam",
+  "speakers": [
+    {
+      "name": "Willem Jan Glerum",
+      "bio": "Principal Software Engineer at Lunatech. Focused on Quarkus, cloud, and security."
+    },
+    {
+      "name": "Noor Vermeulen",
+      "bio": "Java platform engineer who likes fast feedback loops and slow coffee."
+    },
+    {
+      "name": "Tomasz Kowalczyk",
+      "bio": "Backend developer working on streaming data and the newest JDK features."
+    },
+    {
+      "name": "Lena Hartmann",
+      "bio": "Site reliability engineer, collector of incident postmortems."
+    },
+    {
+      "name": "Ravi Menon",
+      "bio": "Developer advocate for cloud-native Java."
+    },
+    {
+      "name": "Sofia Marques",
+      "bio": "Security engineer focused on identity and OAuth."
+    },
+    {
+      "name": "Daan de Boer",
+      "bio": "Tech lead who keeps legacy systems alive and well."
+    },
+    {
+      "name": "Mei Tanaka",
+      "bio": "Machine learning engineer building agents on the JVM."
+    },
+    {
+      "name": "Jonas Lindqvist",
+      "bio": "Build tooling enthusiast and Maven plugin author."
+    },
+    {
+      "name": "Amara Okafor",
+      "bio": "Frontend and accessibility advocate."
+    },
+    {
+      "name": "Pieter Claes",
+      "bio": "Database engineer, fan of boring and correct."
+    },
+    {
+      "name": "Hana Novak",
+      "bio": "Observability engineer, tracing everything twice."
+    }
+  ],
+  "sessions": [
+    {
+      "title": "Opening Keynote: Building Software People Can Trust",
+      "speaker": "Ravi Menon",
+      "room": "Room 1",
+      "startsAt": "2026-11-16T09:00:00+01:00",
+      "endsAt": "2026-11-16T09:50:00+01:00",
+      "abstract": "Why trust is the feature users notice last and miss first, and how teams earn it one release at a time."
+    },
+    {
+      "title": "Fast Feedback with Continuous Testing",
+      "speaker": "Noor Vermeulen",
+      "room": "Room 2",
+      "startsAt": "2026-11-16T09:00:00+01:00",
+      "endsAt": "2026-11-16T09:50:00+01:00",
+      "abstract": "Keep your tests running while you type and stop waiting on CI to tell you what you already broke."
+    },
+    {
+      "title": "Designing for Accessibility from Day One",
+      "speaker": "Amara Okafor",
+      "room": "Room 3",
+      "startsAt": "2026-11-16T09:00:00+01:00",
+      "endsAt": "2026-11-16T09:50:00+01:00",
+      "abstract": "Small habits that make every screen usable for everyone, without a separate project at the end."
+    },
+    {
+      "title": "Event-Driven Without the Confusion",
+      "speaker": "Pieter Claes",
+      "room": "Room 1",
+      "startsAt": "2026-11-16T10:10:00+01:00",
+      "endsAt": "2026-11-16T11:00:00+01:00",
+      "abstract": "Who owns which data when every service listens to every event."
+    },
+    {
+      "title": "OAuth 2.1 Without the Headaches",
+      "speaker": "Sofia Marques",
+      "room": "Room 2",
+      "startsAt": "2026-11-16T10:10:00+01:00",
+      "endsAt": "2026-11-16T11:00:00+01:00",
+      "abstract": "Authorization code with PKCE, refresh tokens and audiences, explained with one running example."
+    },
+    {
+      "title": "Taming a Legacy Monolith",
+      "speaker": "Daan de Boer",
+      "room": "Room 3",
+      "startsAt": "2026-11-16T10:10:00+01:00",
+      "endsAt": "2026-11-16T11:00:00+01:00",
+      "abstract": "Strangling a ten-year-old codebase one module at a time while it keeps shipping every week."
+    },
+    {
+      "title": "Agents on the JVM",
+      "speaker": "Mei Tanaka",
+      "room": "Room 1",
+      "startsAt": "2026-11-16T11:20:00+01:00",
+      "endsAt": "2026-11-16T12:10:00+01:00",
+      "abstract": "How tool calling, memory and guardrails fit together when you build an AI agent in Java."
+    },
+    {
+      "title": "Getting More out of Your Build",
+      "speaker": "Jonas Lindqvist",
+      "room": "Room 2",
+      "startsAt": "2026-11-16T11:20:00+01:00",
+      "endsAt": "2026-11-16T12:10:00+01:00",
+      "abstract": "Incremental builds, reproducible artifacts and the plugins that quietly slow you down."
+    },
+    {
+      "title": "Tracing a Request Across Ten Services",
+      "speaker": "Hana Novak",
+      "room": "Room 3",
+      "startsAt": "2026-11-16T11:20:00+01:00",
+      "endsAt": "2026-11-16T12:10:00+01:00",
+      "abstract": "OpenTelemetry from first span to a dashboard the on-call engineer actually opens."
+    },
+    {
+      "title": "Postgres Tricks for Application Developers",
+      "speaker": "Pieter Claes",
+      "room": "Room 1",
+      "startsAt": "2026-11-16T13:30:00+01:00",
+      "endsAt": "2026-11-16T14:20:00+01:00",
+      "abstract": "Indexes, constraints and transactions that save you from writing that code yourself."
+    },
+    {
+      "title": "Startup Time in the Age of Disposable Infrastructure",
+      "speaker": "Lena Hartmann",
+      "room": "Room 2",
+      "startsAt": "2026-11-16T13:30:00+01:00",
+      "endsAt": "2026-11-16T14:20:00+01:00",
+      "abstract": "Native images, AOT caching and checkpoints compared on the same service."
+    },
+    {
+      "title": "Prompt Injection, Explained",
+      "speaker": "Sofia Marques",
+      "room": "Room 3",
+      "startsAt": "2026-11-16T13:30:00+01:00",
+      "endsAt": "2026-11-16T14:20:00+01:00",
+      "abstract": "How untrusted text steers a model, and the defences that hold up when a tool can act."
+    },
+    {
+      "title": "Practical MCP Security in Action",
+      "speaker": "Willem Jan Glerum",
+      "room": "Room 1",
+      "startsAt": "2026-11-16T14:45:00+01:00",
+      "endsAt": "2026-11-16T15:35:00+01:00",
+      "abstract": "Securing MCP servers with OAuth 2.1, token exchange and step-up authentication, live with Quarkus and Keycloak."
+    },
+    {
+      "title": "Stream Gatherers in Practice",
+      "speaker": "Tomasz Kowalczyk",
+      "room": "Room 2",
+      "startsAt": "2026-11-16T14:45:00+01:00",
+      "endsAt": "2026-11-16T15:35:00+01:00",
+      "abstract": "Custom intermediate operations for Java streams: windowing, deduplication and stateful pipelines with Gatherers."
+    },
+    {
+      "title": "Testing AI Features Beyond the Demo",
+      "speaker": "Mei Tanaka",
+      "room": "Room 3",
+      "startsAt": "2026-11-16T14:45:00+01:00",
+      "endsAt": "2026-11-16T15:35:00+01:00",
+      "abstract": "Evaluation sets, regression checks and what to assert when the output is never the same twice."
+    },
+    {
+      "title": "Native Images Without Tears",
+      "speaker": "Lena Hartmann",
+      "room": "Room 1",
+      "startsAt": "2026-11-16T16:00:00+01:00",
+      "endsAt": "2026-11-16T16:50:00+01:00",
+      "abstract": "A practical checklist for moving a real service to a native executable."
+    },
+    {
+      "title": "Kubernetes for Java Developers",
+      "speaker": "Ravi Menon",
+      "room": "Room 2",
+      "startsAt": "2026-11-16T16:00:00+01:00",
+      "endsAt": "2026-11-16T16:50:00+01:00",
+      "abstract": "Probes, resources and config maps: the parts of Kubernetes your Java app has opinions about."
+    },
+    {
+      "title": "Code Review That Helps",
+      "speaker": "Noor Vermeulen",
+      "room": "Room 3",
+      "startsAt": "2026-11-16T16:00:00+01:00",
+      "endsAt": "2026-11-16T16:50:00+01:00",
+      "abstract": "Reviews that catch bugs, share knowledge and do not leave anyone dreading the next pull request."
+    }
+  ]
+}
