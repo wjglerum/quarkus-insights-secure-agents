@@ -280,12 +280,12 @@ Ready answers, in order of how likely they are.
 > "Two things get lost in the exchange, delegated or not. First, how strongly I logged in: I did MFA, my token says so, the exchanged token comes back as plain password level. Second, which app I came through: the token names the MCP server, not the chat app. So the MCP server tells the API both, in headers the API only trusts from `conference-mcp`. It's a shortcut and I'm telling you it's a shortcut."
 
 **"What's missing, then?"**
-> "Two things, both in the authorization server, not in my code. The exchange should carry over how the user authenticated, the `acr`. And it should record the whole chain, chat app then MCP server; RFC 8693 already allows that with nested `act` claims. Once Keycloak does both, I delete the headers and the token carries everything."
+> "Two things, both in the authorization server, not in my code. The exchange should carry over how the user authenticated, the `acr`. And it should record which app I started in, so the chain reads chat app then MCP server. RFC 8693 allows that with nested `act` claims, and Keycloak already nests an `act` the actor brings along, but it never writes down the original client; multi-hop chaining is an open Keycloak issue. Nobody has asked Keycloak to carry the `acr` over yet; they documented the level-1 default instead. Once Keycloak does both, I delete the headers and the token carries everything."
 
 **"Is this production-ready?"**
-> "Delegation is a preview feature in Keycloak 26.8. It works, but it's preview, and two gaps showed up while building this: the consent comes back on every login and step-up, and dynamic client registration doesn't match the parameterized scope name, so a DCR client has to register with `delegation:client`. Quarkus can't send the actor token on its own yet either, so the exchange is about a hundred lines of my own code."
+> "Delegation is a preview feature in Keycloak 26.8. It works, but it's preview. Two things surprised me, and both are by design: the consent comes back on every login and step-up, because delegation consent is never stored, and a DCR client registers the base scope `delegation:client` and passes the `:conference-mcp` parameter at login. Quarkus can't send the actor token on its own yet either, so the exchange is about a hundred lines of my own code."
 
-Avoid: "delegation fixes this" (it names the agent; it doesn't carry the `acr`), "the token is forwarded" (it never is), and "Keycloak is broken" (say "doesn't carry the authentication level across the exchange yet").
+Avoid: "Keycloak can't nest `act`" (it can; it just never records the original client), "delegation fixes this" (it names the agent; it doesn't carry the `acr`), "the token is forwarded" (it never is), and "Keycloak is broken" (say "doesn't carry the authentication level across the exchange yet").
 
 ## Recovery
 

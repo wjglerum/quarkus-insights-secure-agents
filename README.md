@@ -154,7 +154,7 @@ Neither exchange keeps the **step-up level**: an `acr` of `urn:insights:mfa` com
 - It sends what it verified as `X-Mcp-Acr` and the client the user signed in with as `X-Mcp-Client`.
 - `conference-api` trusts those headers **only** when the token's acting client is `conference-mcp`. Only that client holds the secret to obtain such a token. For any other caller, the token's own `acr` is all that counts.
 
-The fix for both belongs in the authorization server: carry the subject's `acr` across the exchange, and record the chain of clients (RFC 8693 allows nested `act` claims). Until then the headers stay.
+The fix for both belongs in the authorization server: carry the subject's `acr` across the exchange, and record the originating client in the delegation chain. RFC 8693 allows nested `act` claims for that. Keycloak 26.8 already nests an `act` that the actor token itself carries, but it never writes the subject client into a claim; multi-hop chaining is open as [keycloak#53040](https://github.com/keycloak/keycloak/issues/53040). Keycloak documents the `acr` default of 1 for token exchange ([keycloak#54752](https://github.com/keycloak/keycloak/issues/54752)) and no issue asks to carry it over yet. Until then the headers stay.
 
 ## Client registration: DCR vs CIMD
 
