@@ -1,18 +1,6 @@
 # Secure AI agents with Quarkus LangChain4j
 ### Quarkus Insights #268 / Conference Companion / Agent + guardrails
 
-Built on [quarkus-mcp-jfall-2026](https://github.com/wjglerum/quarkus-mcp-jfall-2026): same three apps, same Keycloak realm, same token exchange, step-up and audit log. What is new is the chat: a real agent with guardrails you can switch on and off live.
-
-## What changed from the original demo
-
-| | Original | This repo |
-|---|---|---|
-| Model call | One `ChatModel.chat()`, picks one tool | `ConferenceAgent`: a `@RegisterAiService` that may call several tools |
-| Tool results | Never go back to the model | Go back to the model, so a comment in a tool result can steer it |
-| Guardrails | None | Input, tool call, tool result and output, plus an optional hardened prompt |
-
-The agent falls back to the scripted prompts when the model is unreachable, and `DEMO_PLANNER=scripted` works with no network.
-
 ## The guardrails
 
 All five are in `conference-chat`, each with a switch in the chat sidebar (`demo.guardrails.enabled`, default none so the first attack lands). The switch is demo scaffolding; in a real app the guards are always on.

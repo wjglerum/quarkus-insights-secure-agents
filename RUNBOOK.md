@@ -24,8 +24,6 @@ The seeded realm ships a TOTP credential for `willem.jan` and a `Browser Stepup`
 NFXHG2LHNB2HG3LDOAZDAMRWON2GK4DVOBZWKZLE
 ```
 
-The seed changed from the J-Fall realm, so an existing J-Fall or jPrime entry on the phone produces wrong codes: delete it and add this one. Check the phone clock is synced; TOTP fails on drift.
-
 What the audience sees in Demo 4: `conference-mcp` checks the `acr` on your token **before** it calls the API, so the refusal is a tool error, `insufficient_user_authentication: this tool requires step-up MFA`, visible in the `conference-mcp` terminal. The chat recognises that error code, shows the amber step-up card and opens the OTP popup. The API's own 401 + `WWW-Authenticate` challenge is a second line of defence and does not appear in this flow, so don't promise it on stage. MCP Inspector and Claude show the tool error but will not re-prompt for MFA by themselves.
 
 ## Env vars
