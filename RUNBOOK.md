@@ -50,7 +50,7 @@ cd conference-mcp && DEMO_NOW=2026-11-16T15:10:00+01:00 ./mvnw quarkus:dev
 
 # Terminal 3 - chat client, joins the same Keycloak container
 export ANTHROPIC_API_KEY=...
-cd conference-chat && DEMO_NOW=2026-11-16T15:10:00+01:00 ./mvnw quarkus:dev
+cd conference-chat && ./mvnw quarkus:dev
 ```
 
 The first start pulls the Postgres and Keycloak images. Allow 30 to 60 seconds on a fresh machine; subsequent restarts reuse the containers.

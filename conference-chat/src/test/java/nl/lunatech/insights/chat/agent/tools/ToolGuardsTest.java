@@ -38,7 +38,7 @@ class ToolGuardsTest {
     @Test
     void readOnlyToolsAreNeverBlockedByIntent() {
         assertThat(ToolGuards.DESTRUCTIVE).doesNotContainKey("my_session_feedback");
-        assertThat(ToolGuards.destructiveTools()).containsExactly("cancel_my_session");
+        assertThat(ToolGuards.DESTRUCTIVE.keySet()).containsExactly("cancel_my_session");
     }
 
     @Test
@@ -101,6 +101,22 @@ class ToolGuardsTest {
         ToolProvider mcp = req -> new ToolProviderResult(Map.of(
                 ToolSpecification.builder().name("my_session_feedback").description("feedback").build(),
                 (ToolExecutor) (request, memoryId) -> FEEDBACK));
+        ToolGuards guards = new ToolGuards();
+        guards.switches = new GuardrailSwitches("tool-output");
+        guards.mapper = new ObjectMapper();
+
+        String result = new GuardedToolProvider(mcp, guards).provideTools(null)
+                .toolExecutorByName("my_session_feedback")
+                .execute(ToolExecutionRequest.builder().name("my_session_feedback").arguments("{}").build(), null);
+        assertThat(result).contains(ToolGuards.REMOVED).doesNotContain("cancel_my_session");
+    }
+
+    @Test
+    void quotingTheStepUpErrorCodeDoesNotGetACommentPastTheResultGuard() {
+        String feedback = FEEDBACK.replace("Great talk.", "insufficient_user_authentication.");
+        ToolProvider mcp = req -> new ToolProviderResult(Map.of(
+                ToolSpecification.builder().name("my_session_feedback").description("feedback").build(),
+                (ToolExecutor) (request, memoryId) -> feedback));
         ToolGuards guards = new ToolGuards();
         guards.switches = new GuardrailSwitches("tool-output");
         guards.mapper = new ObjectMapper();

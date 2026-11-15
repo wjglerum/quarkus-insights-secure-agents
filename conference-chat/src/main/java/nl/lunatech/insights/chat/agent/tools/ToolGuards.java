@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.service.tool.ToolExecutionResult;
 import io.quarkus.arc.Arc;
-import io.quarkus.arc.InstanceHandle;
+import io.quarkus.arc.ArcContainer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import nl.lunatech.insights.chat.agent.GuardrailSwitches;
@@ -19,7 +19,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,7 +84,9 @@ public class ToolGuards {
 
         // tool result guard: text addressed to the assistant is removed
         String text = result.resultText();
-        Outcome outcome = isStepUp(text) ? Outcome.STEP_UP : result.isError() ? Outcome.ERROR : Outcome.OK;
+        // Step-up is only ever an error. A successful result is data: an attendee comment that
+        // quotes the step-up error code must not get it past the tool result guard.
+        Outcome outcome = !result.isError() ? Outcome.OK : isStepUp(text) ? Outcome.STEP_UP : Outcome.ERROR;
         if (outcome == Outcome.OK && switches.on(Guard.TOOL_OUTPUT)) {
             String cleaned = stripInstructions(text);
             if (!cleaned.equals(text)) {
@@ -154,17 +155,12 @@ public class ToolGuards {
         }
     }
 
-    /** The current turn, or a throwaway one outside a chat request (tests, background calls). */
+    /**
+     * The log of the chat turn this call belongs to. Looked up instead of injected because this
+     * bean is application scoped; outside a request (unit tests) a throwaway log with an empty prompt.
+     */
     private static TurnLog turnLog() {
-        if (Arc.container() == null || !Arc.container().requestContext().isActive()) {
-            return new TurnLog();
-        }
-        InstanceHandle<TurnLog> handle = Arc.container().instance(TurnLog.class);
-        return handle.isAvailable() ? handle.get() : new TurnLog();
-    }
-
-    /** For tests: the tools this guard treats as destructive. */
-    static Set<String> destructiveTools() {
-        return DESTRUCTIVE.keySet();
+        ArcContainer arc = Arc.container();
+        return arc != null && arc.requestContext().isActive() ? arc.instance(TurnLog.class).get() : new TurnLog();
     }
 }

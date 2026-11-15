@@ -33,12 +33,8 @@ public class CurrentUser {
         return JwtClaims.displayName(idToken, accessToken);
     }
 
-    public Set<String> roles() {
-        return identity.getRoles() == null ? Set.of() : identity.getRoles();
-    }
-
     public String rolesDisplay() {
-        Set<String> roles = roles();
+        Set<String> roles = identity.getRoles();
         return roles.isEmpty() ? "(none)" : String.join(", ", roles);
     }
 

@@ -28,9 +28,9 @@ public class ExchangeHopHeaders implements ClientHeadersFactory {
     public MultivaluedMap<String, String> update(MultivaluedMap<String, String> incoming,
             MultivaluedMap<String, String> outgoing) {
         MultivaluedMap<String, String> headers = new MultivaluedHashMap<>();
+        // A missing claim sends no header, rather than the string "null".
         String acr = stepUp.verifiedAcr();
         if (acr != null) {
-            // No acr claim: send nothing rather than the string "null".
             headers.putSingle("X-Mcp-Acr", acr);
         }
         Object azp = jwt.getClaim("azp");

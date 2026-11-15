@@ -4,12 +4,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.util.Arrays;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -49,29 +48,34 @@ public class GuardrailSwitches {
     public record GuardState(String key, String label, String where, String owasp, boolean enabled) {
     }
 
-    private final Map<Guard, Boolean> state = new EnumMap<>(Guard.class);
+    /** The guards that are on. Concurrent: the sidebar flips switches while chat turns read them. */
+    private final Set<Guard> enabled = ConcurrentHashMap.newKeySet();
 
     /** Comma-separated keys switched on at start, or "all" / "none". Default: none, so the first attack lands. */
-    public GuardrailSwitches(@ConfigProperty(name = "demo.guardrails.enabled", defaultValue = "none") String enabled) {
-        Set<String> on = Arrays.stream(enabled.split(","))
+    public GuardrailSwitches(@ConfigProperty(name = "demo.guardrails.enabled", defaultValue = "none") String atStart) {
+        Set<String> keys = Arrays.stream(atStart.split(","))
                 .map(s -> s.trim().toLowerCase(Locale.ROOT))
                 .collect(Collectors.toSet());
         for (Guard g : Guard.values()) {
-            state.put(g, on.contains("all") || on.contains(g.key));
+            set(g, keys.contains("all") || keys.contains(g.key));
         }
     }
 
-    public synchronized boolean on(Guard guard) {
-        return state.get(guard);
+    public boolean on(Guard guard) {
+        return enabled.contains(guard);
     }
 
-    public synchronized void set(Guard guard, boolean enabled) {
-        state.put(guard, enabled);
+    public void set(Guard guard, boolean on) {
+        if (on) {
+            enabled.add(guard);
+        } else {
+            enabled.remove(guard);
+        }
     }
 
-    public synchronized List<GuardState> all() {
+    public List<GuardState> all() {
         return Arrays.stream(Guard.values())
-                .map(g -> new GuardState(g.key, g.label, g.where, g.owasp, state.get(g)))
+                .map(g -> new GuardState(g.key, g.label, g.where, g.owasp, on(g)))
                 .toList();
     }
 

@@ -12,7 +12,6 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import nl.lunatech.insights.api.audit.AuditService;
 import nl.lunatech.insights.api.domain.Attendee;
 import nl.lunatech.insights.api.domain.Bookmark;
@@ -59,7 +58,7 @@ public class MeResource {
     @Transactional
     public BookmarkDto addToAgenda(CreateBookmarkRequest req) {
         if (req == null || req.sessionId() == null) {
-            throw new WebApplicationException("session_id is required", 400);
+            throw new WebApplicationException("sessionId is required", 400);
         }
         Attendee me = attendees.currentAttendee();
         Session session = Session.findById(req.sessionId());
@@ -78,13 +77,14 @@ public class MeResource {
     @DELETE
     @Path("/agenda/{sessionId}")
     @Transactional
-    public Response removeFromAgenda(@PathParam("sessionId") Long sessionId) {
+    public void removeFromAgenda(@PathParam("sessionId") Long sessionId) {
         Attendee me = attendees.currentAttendee();
         Bookmark b = Bookmark.findOne(me.id, sessionId);
-        if (b == null) return Response.noContent().build();
-        b.delete();
-        audit.record("BOOKMARK_REMOVE", "session:" + sessionId, null);
-        return Response.noContent().build();
+        // Idempotent: removing a bookmark that is not there is a no-op, and not audited.
+        if (b != null) {
+            b.delete();
+            audit.record("BOOKMARK_REMOVE", "session:" + sessionId, null);
+        }
     }
 
     @GET

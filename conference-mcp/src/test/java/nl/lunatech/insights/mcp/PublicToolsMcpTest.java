@@ -16,6 +16,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -45,7 +46,7 @@ class PublicToolsMcpTest {
     private static String allText(ToolResponse response) {
         return response.content().stream()
                 .map(content -> content.asText().text())
-                .collect(java.util.stream.Collectors.joining("\n"));
+                .collect(Collectors.joining("\n"));
     }
 
     private static SessionDto session(long id, String title) {

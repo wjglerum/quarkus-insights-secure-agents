@@ -26,8 +26,8 @@ public class AuditEvent extends PanacheEntity {
     @Column(name = "token_amr", columnDefinition = "TEXT")
     public String tokenAmr;
 
-    // The OAuth client that executed the action (azp claim), so the trail shows it was an AI
-    // client acting for the user, not the user clicking directly.
+    // The client that executed the action (see StepUp.executedByClient), so the trail shows it
+    // was an AI client acting for the user, not the user clicking directly.
     @Column(name = "executed_by_client")
     public String executedByClient;
 

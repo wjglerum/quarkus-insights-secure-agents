@@ -48,7 +48,7 @@ public class RatingResource {
             audit.record("RATE_SESSION_REJECTED_NOT_STARTED", "session:" + sessionId,
                     "stars=" + req.stars());
             return Response.status(422)
-                    .entity(ApiError.of("session_not_started",
+                    .entity(new ApiError("session_not_started",
                             "You cannot rate a session before it has started."))
                     .build();
         }

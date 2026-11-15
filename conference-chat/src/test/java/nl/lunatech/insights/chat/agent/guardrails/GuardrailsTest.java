@@ -1,11 +1,10 @@
 package nl.lunatech.insights.chat.agent.guardrails;
 
-import nl.lunatech.insights.chat.agent.ConferenceAgent;
-import nl.lunatech.insights.chat.agent.GuardrailSwitches;
-
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.guardrail.GuardrailResult;
+import nl.lunatech.insights.chat.agent.ConferenceAgent;
+import nl.lunatech.insights.chat.agent.GuardrailSwitches;
 import nl.lunatech.insights.chat.agent.GuardrailSwitches.Guard;
 import org.junit.jupiter.api.Test;
 

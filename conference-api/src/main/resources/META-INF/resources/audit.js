@@ -5,20 +5,15 @@
     const ENDPOINT = '/api/v1/audit/recent?limit=30';
 
     const eventsEl = document.getElementById('events');
-    const emptyEl = document.getElementById('empty');
     const countEl = document.getElementById('count');
     const template = document.getElementById('event-template');
 
     let lastIds = new Set();
 
     function classifyAction(action) {
-        if (!action) return '';
-        const a = action.toUpperCase();
         // Refused attempts first: CANCEL_SESSION_REJECTED is amber, not red.
-        if (a.includes('REJECTED')) return 'step-up';
-        if (a.includes('CANCEL_SESSION') && !a.includes('ATTEMPT') && !a.includes('UNDONE')) return 'destructive';
-        if (a.includes('ATTEMPT')) return 'step-up';
-        if (a.includes('VIEW_SESSION_ATTENDEES')) return 'step-up';
+        if (['REJECTED', 'ATTEMPT', 'VIEW_SESSION_ATTENDEES'].some(s => action.includes(s))) return 'step-up';
+        if (action.includes('CANCEL_SESSION') && !action.includes('UNDONE')) return 'destructive';
         return '';
     }
 
@@ -28,27 +23,12 @@
         timeZone: VENUE_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
     });
 
-    function fmtTime(iso) {
-        if (!iso) return '';
-        try {
-            return timeFmt.format(new Date(iso));
-        } catch (e) {
-            return iso;
-        }
-    }
-
     function render(events) {
-        if (!events || events.length === 0) {
-            emptyEl.style.display = '';
-            return;
-        }
-        emptyEl.style.display = 'none';
+        if (events.length === 0) return;
 
+        // Redraw only when the set of events changed, so the appear animation does not replay.
         const nextIds = new Set(events.map(e => e.id));
-        if (nextIds.size === lastIds.size && [...nextIds].every(id => lastIds.has(id))) {
-            countEl.textContent = events.length + ' events';
-            return;
-        }
+        if (nextIds.size === lastIds.size && [...nextIds].every(id => lastIds.has(id))) return;
         lastIds = nextIds;
 
         eventsEl.innerHTML = '';
@@ -58,7 +38,7 @@
             const cls = classifyAction(e.action);
             if (cls) article.classList.add(cls);
 
-            node.querySelector('[data-bind="time"]').textContent = fmtTime(e.createdAt);
+            node.querySelector('[data-bind="time"]').textContent = timeFmt.format(new Date(e.createdAt));
             node.querySelector('[data-bind="action"]').textContent = e.action || '';
             node.querySelector('[data-bind="target"]').textContent = e.target || '';
             node.querySelector('[data-bind="subject"]').textContent = e.attendeeSubject || '';
@@ -79,8 +59,7 @@
         try {
             const res = await fetch(ENDPOINT, { cache: 'no-store' });
             if (!res.ok) throw new Error('http ' + res.status);
-            const events = await res.json();
-            render(events);
+            render(await res.json());
         } catch (err) {
             console.warn('audit fetch failed', err);
         }

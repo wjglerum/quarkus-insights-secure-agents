@@ -30,14 +30,14 @@ public class StepUp {
      * token exchange drops it from the token the API receives. Null when the token has no acr.
      */
     public String verifiedAcr() {
-        if (satisfied()) return MFA_ACR;
-        Object acr = jwt.getClaim("acr");
-        return acr == null ? null : String.valueOf(acr);
+        Object claim = jwt.getClaim("acr");
+        if (claim == null) return null;
+        String acr = String.valueOf(claim);
+        // "2" covers a realm without the acr.loa.map alias
+        return "2".equals(acr) ? MFA_ACR : acr;
     }
 
     public boolean satisfied() {
-        String acr = String.valueOf((Object) jwt.getClaim("acr"));
-        // "2" covers a realm without the acr.loa.map alias
-        return MFA_ACR.equals(acr) || "2".equals(acr);
+        return MFA_ACR.equals(verifiedAcr());
     }
 }

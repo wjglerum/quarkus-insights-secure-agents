@@ -2,6 +2,7 @@ package nl.lunatech.insights.chat.llm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.agent.tool.ToolSpecification;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
@@ -11,7 +12,6 @@ import dev.langchain4j.model.chat.request.ChatRequestParameters;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.service.tool.AiServiceTool;
 import dev.langchain4j.service.tool.ToolProvider;
-import dev.langchain4j.service.tool.ToolProviderResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
@@ -19,6 +19,10 @@ import org.jboss.logging.Logger;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The original planner: one model call that picks one MCP tool. The tool result never goes back
+ * to the model, so nothing in a tool result can steer it. Compare with {@code ConferenceAgent}.
+ */
 @ApplicationScoped
 public class LlmToolPlanner {
 
@@ -40,10 +44,12 @@ public class LlmToolPlanner {
     @Inject
     ToolProvider mcpToolProvider;
 
-    public Plan plan(ChatModel model, String userPrompt) {
+    @Inject
+    ChatModel model;
+
+    public Plan plan(String userPrompt) {
         try {
-            ToolProviderResult tools = mcpToolProvider.provideTools(null);
-            List<dev.langchain4j.agent.tool.ToolSpecification> specs = tools.aiServiceTools().stream()
+            List<ToolSpecification> specs = mcpToolProvider.provideTools(null).aiServiceTools().stream()
                     .map(AiServiceTool::toolSpecification)
                     .toList();
             ChatRequest request = ChatRequest.builder()
@@ -52,7 +58,7 @@ public class LlmToolPlanner {
                     .build();
             ChatResponse response = model.chat(request);
             AiMessage reply = response.aiMessage();
-            if (reply.hasToolExecutionRequests() && !reply.toolExecutionRequests().isEmpty()) {
+            if (reply.hasToolExecutionRequests()) {
                 ToolExecutionRequest call = reply.toolExecutionRequests().get(0);
                 Map<String, Object> args = parseArgs(call.arguments());
                 return Plan.tool(call.name(), args, "LLM picked tool " + call.name() + ".");

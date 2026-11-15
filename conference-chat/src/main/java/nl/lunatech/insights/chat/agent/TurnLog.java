@@ -32,7 +32,7 @@ public class TurnLog {
     }
 
     public void userPrompt(String prompt) {
-        this.userPrompt = prompt == null ? "" : prompt;
+        this.userPrompt = prompt;
     }
 
     public void add(ToolCall call) {

@@ -1,6 +1,5 @@
 package nl.lunatech.insights.api.web;
 
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -17,7 +16,6 @@ import java.util.List;
 public class SpeakerResource {
 
     @GET
-    @Transactional
     public List<SpeakerListDto> list() {
         return Speaker.<Speaker>list("order by lower(name)").stream()
                 .map(sp -> SpeakerListDto.of(sp,

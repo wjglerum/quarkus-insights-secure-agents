@@ -11,8 +11,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import nl.lunatech.insights.api.audit.AuditService;
 import nl.lunatech.insights.api.domain.Attendee;
 import nl.lunatech.insights.api.domain.Bookmark;
@@ -47,10 +47,8 @@ public class SpeakerSessionResource {
     public List<AttendeeBookmarkDto> attendees(@PathParam("id") Long id) {
         stepUp.require();
         Session session = requireOwnedSession(id, "VIEW_SESSION_ATTENDEES_DENIED");
-        List<AttendeeBookmarkDto> list = Bookmark.<Bookmark>list("session.id = ?1 order by createdAt asc", session.id)
-                .stream()
-                .map(AttendeeBookmarkDto::of)
-                .toList();
+        List<AttendeeBookmarkDto> list = Bookmark.<Bookmark>list("session.id = ?1 order by createdAt", session.id)
+                .stream().map(AttendeeBookmarkDto::of).toList();
         audit.record("VIEW_SESSION_ATTENDEES", "session:" + id, list.size() + " attendees disclosed");
         return list;
     }
@@ -60,30 +58,24 @@ public class SpeakerSessionResource {
     @Transactional
     public SessionDto cancel(@PathParam("id") Long id, CancelSessionRequest req) {
         stepUp.require();
+        Session session = requireOwnedSession(id, "CANCEL_SESSION_ATTEMPTED");
         if (req == null || req.reason() == null || req.reason().isBlank()) {
             audit.recordDenied("CANCEL_SESSION_REJECTED", "session:" + id, "reason is required");
             throw new WebApplicationException("reason is required", 400);
         }
-        Session session = requireOwnedSession(id, "CANCEL_SESSION_ATTEMPTED");
         // Explicit direction instead of a toggle: a retried call must not silently undo the last one.
         boolean undo = req.undo();
         if (session.cancelled != undo) {
-            String why = undo ? "session is not cancelled" : "session is already cancelled";
+            String state = undo ? "is not cancelled" : "is already cancelled";
             audit.recordDenied(undo ? "CANCEL_SESSION_UNDO_REJECTED" : "CANCEL_SESSION_REJECTED",
-                    "session:" + id, why + ", reason=" + req.reason());
+                    "session:" + id, "session " + state + ", reason=" + req.reason());
             throw new WebApplicationException(Response.status(Response.Status.CONFLICT)
-                    .entity(ApiError.of("conflict", undo
-                            ? "session " + id + " is not cancelled"
-                            : "session " + id + " is already cancelled"))
+                    .entity(new ApiError("conflict", "session " + id + " " + state))
                     .build());
         }
         session.cancelled = !undo;
         session.cancellationReason = undo ? null : req.reason();
-        session.persist();
-        audit.record(
-                undo ? "CANCEL_SESSION_UNDONE" : "CANCEL_SESSION",
-                "session:" + id,
-                "reason=" + req.reason());
+        audit.record(undo ? "CANCEL_SESSION_UNDONE" : "CANCEL_SESSION", "session:" + id, "reason=" + req.reason());
         return SessionDto.of(session);
     }
 

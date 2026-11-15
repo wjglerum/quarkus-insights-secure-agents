@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Calls one MCP tool directly, without a model in between. Used by the llm and scripted planners. */
 @ApplicationScoped
 public class ToolDispatcher {
 
@@ -43,10 +44,10 @@ public class ToolDispatcher {
                     .arguments(argsJson)
                     .build();
             String resultText = executor.execute(request, null);
-            if (resultText != null && isStepUp(resultText)) {
+            if (isStepUp(resultText)) {
                 return ToolResult.stepUp(tool, safeArgs);
             }
-            return ToolResult.ok(tool, safeArgs, parseJsonIfPossible(resultText));
+            return ToolResult.ok(tool, safeArgs, parseResult(resultText));
         } catch (Exception e) {
             LOG.warnf(e, "MCP tool call failed: tool=%s", tool);
             String msg = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
@@ -64,7 +65,8 @@ public class ToolDispatcher {
         return null;
     }
 
-    private Object parseJsonIfPossible(String raw) {
+    /** Tool results are text; show them as JSON in the chat card when they are JSON. */
+    public Object parseResult(String raw) {
         if (raw == null || raw.isBlank()) return raw;
         String trimmed = raw.trim();
         if (!(trimmed.startsWith("{") || trimmed.startsWith("["))) {
@@ -107,10 +109,5 @@ public class ToolDispatcher {
         public static ToolResult rewritten(String tool, Map<String, Object> args, Object shownToModel, String guard) {
             return new ToolResult(tool, args, shownToModel, null, false, guard);
         }
-    }
-
-    /** Same JSON handling as for direct calls, for results the agent already fetched. */
-    public Object parseResult(String raw) {
-        return parseJsonIfPossible(raw);
     }
 }

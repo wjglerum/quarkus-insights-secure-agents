@@ -28,20 +28,8 @@ public class GuardedToolProviderSupplier implements Supplier<ToolProvider> {
     @Inject
     ToolGuards guards;
 
-    private volatile ToolProvider provider;
-
     @Override
     public ToolProvider get() {
-        ToolProvider p = provider;
-        if (p == null) {
-            synchronized (this) {
-                if (provider == null) {
-                    provider = new GuardedToolProvider(
-                            McpToolProvider.builder().mcpClients(conference).build(), guards);
-                }
-                p = provider;
-            }
-        }
-        return p;
+        return new GuardedToolProvider(McpToolProvider.builder().mcpClients(conference).build(), guards);
     }
 }

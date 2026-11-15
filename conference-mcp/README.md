@@ -8,5 +8,7 @@ a token obtained through RFC 8693 token exchange, never the user's own token.
 - MCP endpoint (streamable HTTP): `http://localhost:8081/mcp`
 - Health: `GET /q/health/ready`
 
-Start in dev mode via the Quarkus Agent MCP plugin. Dev Services provisions a
+Start it with `./mvnw quarkus:dev` from this directory. Dev Services provisions a
 shared Keycloak using the realm at `../keycloak-realm.json`.
+
+See `../README.md` for the architecture and `../DESIGN.md` for the tool tiers.

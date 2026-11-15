@@ -1,8 +1,8 @@
 package nl.lunatech.insights.mcp.tools;
 
 import io.quarkiverse.mcp.server.Tool;
-import io.quarkus.logging.Log;
 import io.quarkiverse.mcp.server.ToolArg;
+import io.quarkus.logging.Log;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

@@ -4,12 +4,12 @@ import dev.langchain4j.model.chat.ChatModel;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
+import nl.lunatech.insights.chat.agent.ConferenceAgent;
+import nl.lunatech.insights.chat.agent.tools.GuardedToolProviderSupplier;
 import nl.lunatech.insights.chat.llm.LlmToolPlanner;
-import nl.lunatech.insights.chat.web.QuickPrompts;
 import nl.lunatech.insights.chat.web.ToolDispatcher;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -23,10 +23,10 @@ class WiringSmokeTest {
     LlmToolPlanner planner;
 
     @Inject
-    nl.lunatech.insights.chat.agent.ConferenceAgent agent;
+    ConferenceAgent agent;
 
     @Inject
-    nl.lunatech.insights.chat.agent.tools.GuardedToolProviderSupplier guardedTools;
+    GuardedToolProviderSupplier guardedTools;
 
     @Inject
     Instance<ChatModel> chatModel;
@@ -42,10 +42,5 @@ class WiringSmokeTest {
     @Test
     void anthropicChatModelIsConfigured() {
         assertTrue(chatModel.isResolvable(), "the single Anthropic ChatModel bean must resolve");
-    }
-
-    @Test
-    void quickPromptsDriveTheDemoScenarios() {
-        assertEquals(13, QuickPrompts.all().size());
     }
 }

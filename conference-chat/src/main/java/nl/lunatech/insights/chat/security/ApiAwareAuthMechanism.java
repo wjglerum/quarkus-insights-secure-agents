@@ -16,6 +16,10 @@ import jakarta.inject.Inject;
 
 import java.util.Set;
 
+/**
+ * The OIDC code flow, except that an unauthenticated {@code /api/*} call gets a plain 401 instead
+ * of a redirect to Keycloak: a fetch() from chat.js cannot follow a login redirect.
+ */
 @Alternative
 @Priority(1)
 @ApplicationScoped

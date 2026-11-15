@@ -3,6 +3,7 @@ package nl.lunatech.insights.chat.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.guardrail.InputGuardrailException;
 import dev.langchain4j.guardrail.OutputGuardrailException;
+import nl.lunatech.insights.chat.agent.ConferenceAgent;
 import nl.lunatech.insights.chat.agent.GuardrailSwitches;
 import nl.lunatech.insights.chat.agent.TurnLog;
 import nl.lunatech.insights.chat.agent.TurnLog.Outcome;
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /** How an agent turn becomes chat cards, with a stub agent instead of a model. */
 class AgentTurnTest {
 
-    private static ChatResource resource(nl.lunatech.insights.chat.agent.ConferenceAgent agent, TurnLog log) {
+    private static ChatResource resource(ConferenceAgent agent, TurnLog log) {
         ChatResource r = new ChatResource();
         r.agent = agent;
         r.turnLog = log;
@@ -67,6 +68,19 @@ class AgentTurnTest {
 
         assertThat(turn.note()).isEqualTo("The answer was blocked before it reached you.");
         assertThat(turn.result().guard()).isEqualTo("output guardrail");
+    }
+
+    @Test
+    void failureAfterAToolCallDoesNotRunThePromptAgain() {
+        TurnLog log = new TurnLog();
+        ChatTurn turn = resource((prompt, hardening) -> {
+            log.add(new ToolCall("bookmark_session", Map.of(), Outcome.OK, "{\"bookmarked\":true}", null, null));
+            throw new RuntimeException("model timed out");
+        }, log).send(new ChatResource.ChatRequest("Bookmark the Gatherers talk"));
+
+        // The scripted planner knows this prompt and would bookmark a second time.
+        assertThat(turn.note()).startsWith("Agent failed:");
+        assertThat(turn.results()).extracting(ToolDispatcher.ToolResult::tool).containsExactly("bookmark_session");
     }
 
     @Test

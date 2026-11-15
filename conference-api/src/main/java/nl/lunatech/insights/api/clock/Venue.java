@@ -11,8 +11,7 @@ public final class Venue {
 
     public static final ZoneId ZONE = ZoneId.of("Europe/Amsterdam");
 
-    private Venue() {
-    }
+    private Venue() {}
 
     public static OffsetDateTime local(OffsetDateTime t) {
         return t == null ? null : t.atZoneSameInstant(ZONE).toOffsetDateTime();

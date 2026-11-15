@@ -47,7 +47,7 @@ Run the guard tests on stage if there is time: `./mvnw -pl conference-chat test 
 |------|------------|
 | `conference-api/`   | Quarkus REST + Panache + Postgres. Owns the schedule, attendee agendas, ratings, and the audit log. Serves the live audit dashboard at `/audit-live`. |
 | `conference-mcp/`   | Quarkus MCP server (streamable HTTP). Exposes tools to AI clients and exchanges the user OAuth token (RFC 8693, delegated with an `act` claim when the user consented) for a `conference-api` token on every call. |
-| `conference-chat/`  | Quarkus chat client. OIDC web-app login, LangChain4j MCP client to `conference-mcp`, Qute-rendered shell. |
+| `conference-chat/`  | Quarkus chat client. OIDC web-app login, the `ConferenceAgent` AI service with its guardrails, LangChain4j MCP client to `conference-mcp`, Qute-rendered shell. |
 | `keycloak-realm.json` | Single shared realm export at the monorepo root. All three apps reference it via `../keycloak-realm.json`. |
 | `DESIGN.md`         | Security decisions, trust boundaries and the deliberate demo shortcuts. |
 | `RUNBOOK.md`        | Stage-side runbook with the four-demo flow, the time budget and the env vars to set. |
@@ -114,7 +114,7 @@ sequenceDiagram
 
 ## MCP protocol version
 
-`conference-mcp` runs on [Quarkus MCP Server](https://docs.quarkiverse.io/quarkus-mcp-server/dev/) 2.0.4 (Quarkus 3.40.1.2), which implements the latest MCP spec, **2026-07-28**. The headline change in that spec is the **stateless** mode: a client skips the `initialize`/`initialized` handshake, can call `server/discover` to learn the supported versions and capabilities, and sends every request self-contained (`Mcp-Method` and `Mcp-Name` headers plus `_meta` client info). No `Mcp-Session-Id` is issued, so there is no session to go stale after a reload (MCP Inspector and the chat client still run in session mode).
+`conference-mcp` runs on [Quarkus MCP Server](https://docs.quarkiverse.io/quarkus-mcp-server/dev/) 2.0.4 (Quarkus 3.40.1.2), which implements the latest MCP spec, **2026-07-28**. The headline change in that spec is the **stateless** mode: a client skips the `initialize`/`initialized` handshake, can call `server/discover` to learn the supported versions and capabilities, and sends every request self-contained (`Mcp-Method` and `Mcp-Name` headers plus `_meta` client info). No `Mcp-Session-Id` is issued, so there is no session to go stale after a reload.
 
 The same `/mcp` endpoint still serves session-based clients on 2025-11-25 and earlier (MCP Inspector, the LangChain4j client in `conference-chat`). Authorization is unchanged across both modes: every request, stateless or not, carries the Bearer token and passes the same gate. `McpProtocolVersionTest` pins this behaviour.
 
@@ -227,11 +227,11 @@ Two follow-ups the demo deliberately leaves out:
 
 | Role | Hex | Where it shows up |
 |------|-----|-------------------|
-| Background    | `#0E1116` | Audit dashboard surface |
+| Background    | `#0E1116` | Page background of the chat and the audit dashboard |
 | Surface       | `#171B22` | Cards, top bar |
-| Border        | `#2A313C` | Card outlines |
+| Border        | `#3A4352` | Card outlines |
 | Primary text  | `#F5F7FA` | Headings, key values |
-| Muted text    | `#9AA4B2` | Subtitles, field labels |
+| Muted text    | `#CDD5DF` | Subtitles, field labels |
 | Brand         | `#0088D3` | Normal actions, links, accents |
 | Amber         | `#F2A65A` | Step-up / sensitive actions, identity highlights |
 | Body type     | Calibri / system sans | Headings, prose |

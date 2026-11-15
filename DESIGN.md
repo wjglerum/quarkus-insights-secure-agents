@@ -26,6 +26,7 @@ A missing step-up is refused earlier, in `conference-mcp`, before the step-up en
 - **Step-up.** Before MFA, the injected call stops at `conference-mcp` and the client shows an unexpected step-up prompt.
 - **Ownership in the API.** After MFA, an injected call still cannot touch another speaker's session, and that refusal is audited.
 - **What does not contain it.** After MFA, an injected cancel of the speaker's *own* session goes through: `conference-mcp` checks the `acr` claim, not how recent the MFA was. The fix is per-action confirmation in the client, which this demo does not have.
+- **Guardrails in the chat.** `conference-chat` runs an agent that reads tool results, so it can fall for the comment. Its tool result guard replaces instruction-like text before the model reads it, and its tool call guard refuses a destructive tool the user did not ask for in their own message (`ToolGuards`). They narrow the gap but live in one client; another MCP client has neither, which is why the server-side checks above stay.
 
 ## Trust boundaries
 
@@ -49,6 +50,7 @@ These are deliberate, and each should be called out if someone asks:
 - **Delegation is a preview feature.** Token exchange delegation and parameterized scopes are preview in Keycloak 26.8, enabled through Dev Services (`quarkus.keycloak.devservices.features`). A production realm needs the same features switched on, the `delegate` permission, and `conference-mcp`'s service account.
 - **CIMD over plain HTTP.** The spec requires an HTTPS `client_id`. The demo serves it over HTTP on `host.docker.internal`, which needs two more demo-only settings: the realm's `cimd-profile` has **Allow http scheme** on (and `cimd-policy` matches `http` client ids), and `conference-mcp` accepts the `Host: host.docker.internal` header in dev (`%dev.quarkus.http.host-validation.allowed-hosts`) so Keycloak's fetch from inside its container isn't rejected. A real deployment serves the metadata document over HTTPS on a public host and needs neither.
 - **Open audit feed.** `/api/v1/audit/recent` and `/audit-live/` need no login so they can run on the second screen. A real deployment puts them behind an auditor role.
+- **Guardrail switches.** Every guardrail in `conference-chat` can be switched off from the sidebar, and all are off at start so the first attack lands (`GuardrailSwitches`, `demo.guardrails.enabled`). In a real application they are always on.
 - **Scripted fallback planner.** If the LLM is unreachable, `conference-chat` maps the rehearsed prompts to tool calls itself and says so in the reply. The MCP calls, tokens and audit trail are identical.
 - **Demo clock.** `DEMO_NOW` pins "now" to 16 November 2026, 15:10 venue time (Europe/Amsterdam, CET), halfway through the MCP talk, so `whats_on_now` and the rating cutoff behave the same in every rehearsal.
 

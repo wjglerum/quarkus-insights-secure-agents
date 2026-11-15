@@ -39,9 +39,8 @@ public class PromptInjectionGuard implements InputGuardrail {
         }
         String lower = text.toLowerCase(Locale.ROOT);
         for (String phrase : phrases) {
-            String p = phrase.trim().toLowerCase(Locale.ROOT);
-            if (!p.isEmpty() && lower.contains(p)) {
-                return fatal("PromptInjectionGuard: the message contains \"" + p + "\" and was not sent to the model.");
+            if (lower.contains(phrase.toLowerCase(Locale.ROOT))) {
+                return fatal("PromptInjectionGuard: the message contains \"" + phrase + "\" and was not sent to the model.");
             }
         }
         return success();

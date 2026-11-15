@@ -2,7 +2,6 @@ package nl.lunatech.insights.chat.web;
 
 import dev.langchain4j.guardrail.InputGuardrailException;
 import dev.langchain4j.guardrail.OutputGuardrailException;
-import dev.langchain4j.model.chat.ChatModel;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -23,6 +22,7 @@ import org.jboss.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Path("/api/chat")
 @Produces(MediaType.APPLICATION_JSON)
@@ -40,9 +40,6 @@ public class ChatResource {
 
     @Inject
     ScriptedPlanner scripted;
-
-    @Inject
-    ChatModel chatModel;
 
     @Inject
     ConferenceAgent agent;
@@ -67,7 +64,7 @@ public class ChatResource {
     public ChatTurn send(ChatRequest req) {
         String prompt = req == null || req.prompt() == null ? "" : req.prompt().trim();
         if (prompt.isEmpty()) {
-            return ChatTurn.text("Type a prompt to get started.");
+            return ChatTurn.of(prompt, "Type a prompt to get started.", List.of());
         }
         if ("agent".equalsIgnoreCase(plannerMode)) {
             return agentTurn(prompt);
@@ -97,10 +94,8 @@ public class ChatResource {
                 return ChatTurn.of(prompt, "This needs a stronger login first.", results);
             }
             LOG.warnf(e, "Agent turn failed, falling back to the scripted planner");
-            ChatTurn fallback = plannerTurnScriptedOnly(prompt);
-            return fallback != null ? fallback
-                    : ChatTurn.of(prompt, "Agent failed: " + e.getClass().getSimpleName()
-                            + (e.getMessage() == null ? "" : ": " + e.getMessage()), results);
+            return scriptedTurn(prompt).orElseGet(() -> ChatTurn.of(prompt, "Agent failed: "
+                    + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : ": " + e.getMessage()), results));
         }
     }
 
@@ -141,38 +136,33 @@ public class ChatResource {
     }
 
     private ChatTurn plannerTurn(String prompt) {
-        LlmToolPlanner.Plan plan = "scripted".equalsIgnoreCase(plannerMode)
-                ? scripted.plan(prompt).orElse(LlmToolPlanner.Plan.text(
-                        "Scripted mode only knows the demo prompts in the sidebar."))
-                : planner.plan(chatModel, prompt);
+        if ("scripted".equalsIgnoreCase(plannerMode)) {
+            return scriptedTurn(prompt).orElseGet(() -> ChatTurn.of(prompt,
+                    "Scripted mode only knows the demo prompts in the sidebar.", List.of()));
+        }
+        LlmToolPlanner.Plan plan = planner.plan(prompt);
         if (plan.error() != null) {
-            LlmToolPlanner.Plan failedLlm = plan;
-            plan = scripted.plan(prompt).orElse(null);
-            if (plan == null) {
-                return new ChatTurn(prompt, failedLlm.error(), null, List.of());
-            }
+            return scriptedTurn(prompt).orElseGet(() -> ChatTurn.of(prompt, plan.error(), List.of()));
         }
         if (!plan.hasTool()) {
-            return new ChatTurn(prompt, plan.note(), null, List.of());
+            return ChatTurn.of(prompt, plan.note(), List.of());
         }
-        ToolResult result = dispatcher.invoke(plan.tool(), plan.args());
-        return ChatTurn.of(prompt, plan.note(), List.of(result));
+        return toolTurn(prompt, plan);
     }
 
-    private ChatTurn plannerTurnScriptedOnly(String prompt) {
-        return scripted.plan(prompt)
-                .map(plan -> ChatTurn.of(prompt, plan.note(), List.of(dispatcher.invoke(plan.tool(), plan.args()))))
-                .orElse(null);
+    /** Empty when the prompt is not one of the rehearsed demo prompts. */
+    private Optional<ChatTurn> scriptedTurn(String prompt) {
+        return scripted.plan(prompt).map(plan -> toolTurn(prompt, plan));
+    }
+
+    private ChatTurn toolTurn(String prompt, LlmToolPlanner.Plan plan) {
+        return ChatTurn.of(prompt, plan.note(), List.of(dispatcher.invoke(plan.tool(), plan.args())));
     }
 
     public record ChatRequest(String prompt) {}
 
     /** {@code result} is the last tool call, kept for the single-tool planner UI; {@code results} has every call in order. */
     public record ChatTurn(String prompt, String note, ToolResult result, List<ToolResult> results) {
-        public static ChatTurn text(String note) {
-            return new ChatTurn(null, note, null, List.of());
-        }
-
         public static ChatTurn of(String prompt, String note, List<ToolResult> results) {
             ToolResult last = results.isEmpty() ? null : results.get(results.size() - 1);
             return new ChatTurn(prompt, note, last, results);

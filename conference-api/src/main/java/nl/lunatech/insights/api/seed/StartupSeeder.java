@@ -19,7 +19,7 @@ public class StartupSeeder {
         try {
             staticSeeder.seedIfEmpty();
         } catch (Exception e) {
-            Log.warnf(e, "Static schedule seeding failed; continuing with empty schedule");
+            Log.warnf(e, "Static schedule seeding failed");
         }
         try {
             demoSeeder.seedIfEmpty();

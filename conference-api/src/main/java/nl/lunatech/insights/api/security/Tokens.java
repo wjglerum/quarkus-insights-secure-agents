@@ -12,13 +12,13 @@ public final class Tokens {
     private Tokens() {}
 
     public static String acr(JsonWebToken jwt) {
-        Object acr = jwt == null ? null : jwt.getClaim("acr");
+        Object acr = jwt.getClaim("acr");
         return acr == null ? null : String.valueOf(acr);
     }
 
     /** The authorized party (azp): the OAuth client the token was issued to. */
     public static String azp(JsonWebToken jwt) {
-        Object azp = jwt == null ? null : jwt.getClaim("azp");
+        Object azp = jwt.getClaim("azp");
         return azp == null ? null : String.valueOf(azp);
     }
 
@@ -28,7 +28,7 @@ public final class Tokens {
      * consented to that client acting for them.
      */
     public static String act(JsonWebToken jwt) {
-        Object act = jwt == null ? null : jwt.getClaim("act");
+        Object act = jwt.getClaim("act");
         if (act instanceof JsonObject json) {
             return json.get("client_id") instanceof JsonString id ? id.getString() : null;
         }
@@ -47,13 +47,13 @@ public final class Tokens {
 
     /** The token issuer (iss): the authorization server that minted the token. */
     public static String iss(JsonWebToken jwt) {
-        String iss = jwt == null ? null : jwt.getIssuer();
+        String iss = jwt.getIssuer();
         return iss == null || iss.isBlank() ? null : iss;
     }
 
     /** The amr values comma-joined (no spaces), or null when absent. */
     public static String amr(JsonWebToken jwt) {
-        Object amr = jwt == null ? null : jwt.getClaim("amr");
+        Object amr = jwt.getClaim("amr");
         if (amr instanceof Iterable<?> values) {
             StringBuilder sb = new StringBuilder();
             for (Object value : values) {

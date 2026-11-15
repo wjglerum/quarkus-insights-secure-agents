@@ -45,7 +45,7 @@ Useful URLs in dev mode:
 
 Public (no auth):
 
-- `GET /api/v1/sessions` (`?speaker_id=`, `?q=`)
+- `GET /api/v1/sessions` (`?speaker_id=`, `?speaker_name=`, `?q=`)
 - `GET /api/v1/sessions/{id}`
 - `GET /api/v1/sessions/current?at=`
 - `GET /api/v1/sessions/next?at=&limit=`
@@ -64,11 +64,15 @@ Speaker role (`speaker`):
 
 - `GET /api/v1/me/sessions/feedback`
 
-Speaker role plus step-up
-(`acr=urn:insights:mfa` or `acr=2`):
+Speaker role plus step-up (`acr=urn:insights:mfa`, on the token or asserted by
+conference-mcp in `X-Mcp-Acr`):
 
 - `GET /api/v1/sessions/{id}/attendees`
-- `POST /api/v1/sessions/{id}/cancel` (reversible toggle)
+- `POST /api/v1/sessions/{id}/cancel` (`"undo": true` restores the session)
+
+conference-mcp only:
+
+- `POST /api/v1/audit/refusals` (audits a step-up tool it refused)
 
 ## Demo clock
 
@@ -79,8 +83,8 @@ the box. Override with `DEMO_NOW`.
 
 ## Tests
 
-Run the full suite (no live Keycloak required, OIDC tenant is disabled in
-`%test`):
+Run the full suite (no live Keycloak required; `%test` verifies tokens against
+the wiremock OIDC server):
 
 ```shell
 ./mvnw test
@@ -95,7 +99,7 @@ open audit feed, and step-up + reversible cancellation for the speaker.
 See `src/main/resources/application.properties`. Production needs:
 
 - `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`
-- `OIDC_AUTH_SERVER_URL`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`
+- `OIDC_AUTH_SERVER_URL`, `OIDC_CLIENT_ID` (defaults to `conference-api`)
 - `DEMO_NOW` if you want a fixed clock; otherwise unset.
 
 ## Packaging

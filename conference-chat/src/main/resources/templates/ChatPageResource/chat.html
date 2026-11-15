@@ -16,7 +16,7 @@
       <span class="brand-sep">/</span>
       <span class="brand-sub">DemoConf 2026 Conference Companion</span>
     </div>
-    <div class="status" id="status">
+    <div class="status">
       <span class="dot live"></span>
       <span class="who" id="who">{me.name ?: me.subject}</span>
       <a class="logout" href="/logout">Sign out</a>
@@ -58,8 +58,8 @@
 
       <h2 class="sidebar-title">Identity</h2>
       <dl class="identity" id="identity">
-        <dt>subject</dt><dd class="amber" data-bind="subject">{me.subject}</dd>
-        <dt>name</dt><dd class="amber" data-bind="name">{me.name}</dd>
+        <dt>subject</dt><dd class="amber">{me.subject}</dd>
+        <dt>name</dt><dd class="amber">{me.name}</dd>
         <dt>roles</dt><dd data-bind="roles">{me.rolesDisplay}</dd>
         <dt>acr</dt><dd data-bind="acr">{me.acr}</dd>
         <dt>amr</dt><dd data-bind="amr">{me.amrDisplay}</dd>
@@ -106,13 +106,6 @@
     <span>conference-chat  /  anthropic</span>
   </footer>
 
-  <script>
-    window.__ME__ = {
-      subject: "{me.subject}",
-      name: "{me.name}"
-    };
-  </script>
-
   <template id="user-bubble">
     <div class="bubble user">
       <div class="bubble-meta"><span class="role" data-bind="who"></span><span class="time" data-bind="time"></span></div>
@@ -126,7 +119,7 @@
       <p class="note" data-bind="note"></p>
       <article class="tool-card" data-bind-card>
         <header class="tool-head">
-          <span class="tool-type" data-bind="toolType">mcp.tool_call</span>
+          <span class="tool-type">mcp.tool_call</span>
           <span class="tool-name" data-bind="toolName"></span>
           <span class="tool-tier" data-bind="toolTier"></span>
         </header>
@@ -136,7 +129,7 @@
         </header>
         <pre class="tool-result" data-bind="toolResult"></pre>
       </article>
-      <div class="tool-error" data-bind-error data-bind="errorText"></div>
+      <div class="tool-error" data-bind-error></div>
       <div class="tool-stepup" data-bind-stepup>
         <strong>Step-up required.</strong>
         <span>The server replied <code>insufficient_user_authentication</code>. Authenticate with your one-time code in the popup; the prompt is sent again automatically.</span>

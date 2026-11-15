@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import nl.lunatech.insights.api.domain.Session;
 import nl.lunatech.insights.api.domain.Speaker;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
@@ -21,95 +22,52 @@ public class StaticScheduleSeeder {
     private static final String AGENDA_RESOURCE = "seed/insights-2026-agenda.json";
 
     @Transactional
-    public int seedIfEmpty() {
+    public void seedIfEmpty() throws IOException {
         if (Session.count() > 0) {
-            Log.infof("Static schedule: already %d sessions present, skipping baseline seed",
-                    Session.count());
-            return 0;
+            Log.info("Static schedule: sessions already present, skipping");
+            return;
         }
 
-        Agenda agenda = loadAgenda();
-        if (agenda == null || agenda.sessions == null || agenda.sessions.isEmpty()) {
-            Log.warn("Static schedule: agenda JSON missing or empty, no sessions seeded");
-            return 0;
+        Agenda agenda;
+        try (InputStream in = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(AGENDA_RESOURCE)) {
+            agenda = new ObjectMapper().readValue(in, Agenda.class);
         }
 
         Map<String, Speaker> speakers = new HashMap<>();
-        if (agenda.speakers != null) {
-            for (SpeakerJson sp : agenda.speakers) {
-                if (sp == null || sp.name == null || sp.name.isBlank()) continue;
-                Speaker entity = new Speaker();
-                entity.name = sp.name;
-                entity.bio = sp.bio;
-                entity.persist();
-                speakers.put(sp.name, entity);
-            }
+        for (SpeakerJson row : agenda.speakers()) {
+            Speaker speaker = new Speaker();
+            speaker.name = row.name();
+            speaker.bio = row.bio();
+            speaker.persist();
+            speakers.put(row.name(), speaker);
         }
 
-        int sessionCount = 0;
-        for (SessionJson row : agenda.sessions) {
-            if (row == null || row.title == null || row.title.isBlank()) continue;
-            Speaker speaker = row.speaker == null ? null : speakers.get(row.speaker);
-            if (speaker == null && row.speaker != null && !row.speaker.isBlank()) {
-                speaker = new Speaker();
-                speaker.name = row.speaker;
-                speaker.persist();
-                speakers.put(row.speaker, speaker);
-            }
-
+        for (SessionJson row : agenda.sessions()) {
             Session s = new Session();
-            s.title = row.title;
-            s.abstractText = row.abstractText != null ? row.abstractText : row.title;
-            s.room = row.room == null ? "TBA" : row.room;
-            s.startsAt = OffsetDateTime.parse(row.startsAt);
-            s.endsAt = OffsetDateTime.parse(row.endsAt);
-            s.cancelled = false;
-            s.speaker = speaker;
+            s.title = row.title();
+            s.abstractText = row.abstractText();
+            s.room = row.room();
+            s.startsAt = OffsetDateTime.parse(row.startsAt());
+            s.endsAt = OffsetDateTime.parse(row.endsAt());
+            s.speaker = speakers.get(row.speaker());
             s.persist();
-            sessionCount++;
         }
 
         Log.infof("Static schedule: seeded %d sessions and %d speakers from %s",
-                sessionCount, speakers.size(), AGENDA_RESOURCE);
-        return sessionCount;
-    }
-
-    private Agenda loadAgenda() {
-        try (InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream(AGENDA_RESOURCE)) {
-            if (in == null) {
-                Log.warnf("Static schedule: %s not found on classpath", AGENDA_RESOURCE);
-                return null;
-            }
-            return new ObjectMapper().readValue(in, Agenda.class);
-        } catch (Exception e) {
-            Log.warnf(e, "Static schedule: failed to parse %s", AGENDA_RESOURCE);
-            return null;
-        }
+                agenda.sessions().size(), speakers.size(), AGENDA_RESOURCE);
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Agenda {
-        public Integer year;
-        public String timezone;
-        public List<SpeakerJson> speakers;
-        public List<SessionJson> sessions;
-    }
+    record Agenda(List<SpeakerJson> speakers, List<SessionJson> sessions) {}
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class SpeakerJson {
-        public String name;
-        public String bio;
-    }
+    record SpeakerJson(String name, String bio) {}
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class SessionJson {
-        public String title;
-        @JsonProperty("abstract")
-        public String abstractText;
-        public String speaker;
-        public String room;
-        public String startsAt;
-        public String endsAt;
-    }
+    record SessionJson(
+            String title,
+            @JsonProperty("abstract") String abstractText,
+            String speaker,
+            String room,
+            String startsAt,
+            String endsAt) {}
 }
