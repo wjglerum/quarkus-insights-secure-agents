@@ -93,8 +93,11 @@ public class ChatResource {
             if (results.stream().anyMatch(ToolResult::stepUpRequired)) {
                 return ChatTurn.of(prompt, "This needs a stronger login first.", results);
             }
-            LOG.warnf(e, "Agent turn failed, falling back to the scripted planner");
-            return scriptedTurn(prompt).orElseGet(() -> ChatTurn.of(prompt, "Agent failed: "
+            LOG.warnf(e, "Agent turn failed");
+            // Fall back to the scripted planner only when no tool ran yet: running the prompt
+            // again after a tool call could bookmark or cancel twice.
+            Optional<ChatTurn> fallback = results.isEmpty() ? scriptedTurn(prompt) : Optional.empty();
+            return fallback.orElseGet(() -> ChatTurn.of(prompt, "Agent failed: "
                     + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : ": " + e.getMessage()), results));
         }
     }

@@ -44,10 +44,12 @@ public class ToolDispatcher {
                     .arguments(argsJson)
                     .build();
             String resultText = executor.execute(request, null);
-            if (isStepUp(resultText)) {
+            Object result = parseResult(resultText);
+            // Step-up is a plain error message. JSON is tool data, which may quote the error code.
+            if (result instanceof String message && isStepUp(message)) {
                 return ToolResult.stepUp(tool, safeArgs);
             }
-            return ToolResult.ok(tool, safeArgs, parseResult(resultText));
+            return ToolResult.ok(tool, safeArgs, result);
         } catch (Exception e) {
             LOG.warnf(e, "MCP tool call failed: tool=%s", tool);
             String msg = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
