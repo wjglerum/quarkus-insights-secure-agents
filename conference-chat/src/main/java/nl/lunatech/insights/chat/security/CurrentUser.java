@@ -34,6 +34,11 @@ public class CurrentUser {
         return identity.getRoles().isEmpty() ? "(none)" : String.join(", ", identity.getRoles());
     }
 
+    /** The user's own email address, from the ID token. Empty when the token has none. */
+    public String email() {
+        return claim(idToken, "email", claim(accessToken, "email", ""));
+    }
+
     public String acr() {
         return claim(accessToken, "acr", "1");
     }

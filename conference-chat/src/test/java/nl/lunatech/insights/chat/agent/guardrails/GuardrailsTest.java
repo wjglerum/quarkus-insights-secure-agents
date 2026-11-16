@@ -77,9 +77,9 @@ class GuardrailsTest {
 
     @Test
     void switchesStartFromConfigAndToggle() {
-        GuardrailSwitches s = switches("input, tool-intent");
+        GuardrailSwitches s = switches("input, tool-input");
         assertThat(s.on(Guard.INPUT)).isTrue();
-        assertThat(s.on(Guard.TOOL_INTENT)).isTrue();
+        assertThat(s.on(Guard.TOOL_INPUT)).isTrue();
         assertThat(s.on(Guard.OUTPUT)).isFalse();
         assertThat(s.hardening()).isEmpty();
         s.set(Guard.PROMPT, true);

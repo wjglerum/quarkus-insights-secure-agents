@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Everything the agent did in one chat turn: the user's own prompt (which the tool call guard
- * compares against) and every MCP tool call with its outcome, so the chat can show each call
- * as a card.
+ * Everything the agent did in one chat turn: the user's prompt and every tool call with its
+ * outcome, so the chat can show each call as a card.
  */
 @RequestScoped
 public class TurnLog {
@@ -17,8 +16,8 @@ public class TurnLog {
     public enum Outcome { OK, ERROR, STEP_UP, BLOCKED }
 
     /**
-     * One tool call. {@code shownToModel} is the result text after the tool result guard, when it
-     * changed anything; {@code guard} names the guard that blocked or rewrote the call.
+     * One tool call. {@code shownToModel} is set when a guard changed the result before the model
+     * read it; {@code guard} names the guard that blocked or rewrote the call.
      */
     public record ToolCall(String tool, Map<String, Object> args, Outcome outcome,
                            String resultText, String shownToModel, String guard) {

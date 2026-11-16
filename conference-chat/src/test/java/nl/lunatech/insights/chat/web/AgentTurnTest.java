@@ -39,15 +39,15 @@ class AgentTurnTest {
         TurnLog log = new TurnLog();
         ChatTurn turn = resource((prompt, hardening) -> {
             log.add(new ToolCall("my_session_feedback", Map.of(), Outcome.OK, "{\"ratingCount\":2}", null, null));
-            log.add(new ToolCall("cancel_my_session", Map.of("session_query", "Practical MCP Security"),
-                    Outcome.BLOCKED, "Refused by the tool call guard", null, "tool call guard"));
-            return "I did not cancel anything; one comment asked me to.";
+            log.add(new ToolCall("send_email", Map.of("to", "feedback-export@conf-review.example"),
+                    Outcome.BLOCKED, "Refused by the tool input guardrail", null, "tool input guardrail"));
+            return "I did not email anything; one comment asked me to.";
         }, log).send(new ChatResource.ChatRequest("Show the feedback on my MCP talk"));
 
         assertThat(turn.results()).extracting(ToolDispatcher.ToolResult::tool)
-                .containsExactly("my_session_feedback", "cancel_my_session");
-        assertThat(last(turn).guard()).isEqualTo("tool call guard");
-        assertThat(turn.note()).contains("did not cancel");
+                .containsExactly("my_session_feedback", "send_email");
+        assertThat(last(turn).guard()).isEqualTo("tool input guardrail");
+        assertThat(turn.note()).contains("did not email");
     }
 
     @Test

@@ -12,8 +12,8 @@ class ScriptedPlannerTest {
     @Test
     void everyQuickPromptMapsToItsSuggestedTool() {
         for (QuickPrompts.QuickPrompt q : QuickPrompts.all()) {
-            if ("attack".equals(q.tier())) {
-                continue; // guardrail demos for agent mode, not tool shortcuts
+            if ("attack".equals(q.tier()) || "local tool".equals(q.tier())) {
+                continue; // agent-only demos: guardrails and the local email tool are not scripted
             }
             ScriptedPlanner.Call plan = planner.plan(q.label()).orElseThrow(
                     () -> new AssertionError("no scripted plan for: " + q.label()));

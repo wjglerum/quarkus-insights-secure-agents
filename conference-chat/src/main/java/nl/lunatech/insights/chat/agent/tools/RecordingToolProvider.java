@@ -12,24 +12,24 @@ import dev.langchain4j.service.tool.ToolProviderResult;
 import java.util.List;
 
 /**
- * Wraps every MCP tool's executor so {@link ToolGuards} sees each call before it goes out and
- * each result before the model reads it.
+ * Wraps every MCP tool's executor so {@link ToolCallRecorder} can record the call for the chat
+ * cards. It does not change what the tool does or returns.
  */
-public class GuardedToolProvider implements ToolProvider {
+public class RecordingToolProvider implements ToolProvider {
 
     private final ToolProvider delegate;
-    private final ToolGuards guards;
+    private final ToolCallRecorder recorder;
 
-    public GuardedToolProvider(ToolProvider delegate, ToolGuards guards) {
+    public RecordingToolProvider(ToolProvider delegate, ToolCallRecorder recorder) {
         this.delegate = delegate;
-        this.guards = guards;
+        this.recorder = recorder;
     }
 
     @Override
     public ToolProviderResult provideTools(ToolProviderRequest request) {
         ToolProviderResult tools = delegate.provideTools(request);
         List<AiServiceTool> wrapped = tools.aiServiceTools().stream()
-                .map(t -> t.toBuilder().toolExecutor(new Guarded(t.name(), t.toolExecutor())).build())
+                .map(t -> t.toBuilder().toolExecutor(new Recorded(t.name(), t.toolExecutor())).build())
                 .toList();
         return new ToolProviderResult(wrapped);
     }
@@ -39,19 +39,19 @@ public class GuardedToolProvider implements ToolProvider {
         return delegate.isDynamic();
     }
 
-    private final class Guarded implements ToolExecutor {
+    private final class Recorded implements ToolExecutor {
 
         private final String name;
         private final ToolExecutor executor;
 
-        Guarded(String name, ToolExecutor executor) {
+        Recorded(String name, ToolExecutor executor) {
             this.name = name;
             this.executor = executor;
         }
 
         @Override
         public String execute(ToolExecutionRequest request, Object memoryId) {
-            return guards.run(name, request, () -> {
+            return recorder.run(name, request, () -> {
                 String text = executor.execute(request, memoryId);
                 return ToolExecutionResult.builder().resultText(text).build();
             }).resultText();
@@ -59,7 +59,7 @@ public class GuardedToolProvider implements ToolProvider {
 
         @Override
         public ToolExecutionResult executeWithContext(ToolExecutionRequest request, InvocationContext context) {
-            return guards.run(name, request, () -> executor.executeWithContext(request, context));
+            return recorder.run(name, request, () -> executor.executeWithContext(request, context));
         }
     }
 }

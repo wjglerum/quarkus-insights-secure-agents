@@ -21,12 +21,12 @@ A missing step-up is refused earlier, in `conference-mcp`, before the step-up en
 
 ## Untrusted content
 
-`my_session_feedback` returns comments that attendees wrote, so attendee text reaches the speaker's agent, and that agent can also call `cancel_my_session`. The demo seeds one comment with an injected instruction (`DemoDataSeeder.INJECTED_COMMENT`) to show this on stage. What contains it:
+`my_session_feedback` returns comments that attendees wrote, so attendee text reaches the speaker's agent, and that agent can also call `cancel_my_session` and the chat's local `send_email` tool. The demo seeds one comment with an injected instruction (`DemoDataSeeder.INJECTED_COMMENT`, asking for all feedback to be emailed out) to show this on stage. What contains it:
 
 - **Step-up.** Before MFA, the injected call stops at `conference-mcp` and the client shows an unexpected step-up prompt.
 - **Ownership in the API.** After MFA, an injected call still cannot touch another speaker's session, and that refusal is audited.
 - **What does not contain it.** After MFA, an injected cancel of the speaker's *own* session goes through: `conference-mcp` checks the `acr` claim, not how recent the MFA was. The fix is per-action confirmation in the client, which this demo does not have.
-- **Guardrails in the chat.** `conference-chat` runs an agent that reads tool results, so it can fall for the comment. Its tool result guard replaces instruction-like text before the model reads it, and its tool call guard refuses a destructive tool the user did not ask for in their own message (`ToolGuards`). They narrow the gap but live in one client; another MCP client has neither, which is why the server-side checks above stay.
+- **The tool input guardrail on the local tool.** `send_email` lives in the chat app, so no server checks it. `OwnAddressOnly` (`@ToolInputGuardrails`) only lets mail go to the signed-in user, whoever asked for it. The MCP tools get no client-side guard: the checks above live in the server, where every MCP client hits them.
 
 ## Trust boundaries
 

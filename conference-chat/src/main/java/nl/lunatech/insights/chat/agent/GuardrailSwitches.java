@@ -24,8 +24,7 @@ public class GuardrailSwitches {
     public enum Guard {
         INPUT("input", "Input guardrail", "PromptInjectionGuard, before the model", "LLM01"),
         PROMPT("prompt", "Hardened system prompt", "inside the model, advisory only", "LLM01"),
-        TOOL_INTENT("tool-intent", "Tool call guard", "destructive tools need the user's own ask", "LLM03"),
-        TOOL_OUTPUT("tool-output", "Tool result guard", "strips instructions from tool results", "LLM01"),
+        TOOL_INPUT("tool-input", "Tool input guardrail", "OwnAddressOnly, before send_email runs", "LLM02"),
         OUTPUT("output", "Output guardrail", "HiddenContextGuard, after the model", "LLM08");
 
         public final String key;

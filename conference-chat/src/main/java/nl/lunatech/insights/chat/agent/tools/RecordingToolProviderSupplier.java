@@ -11,25 +11,20 @@ import java.util.function.Supplier;
 
 /**
  * Gives {@code ConferenceAgent} the tools of the "conference" MCP client, wrapped in
- * {@link GuardedToolProvider}.
- *
- * <p>Why not {@code @ToolInputGuardrails}? In quarkus-langchain4j 1.15 tool guardrails wrap local
- * {@code @Tool} methods; MCP tools come from the MCP tool provider and are not wrapped. So for
- * MCP the guard point is the {@link ToolProvider}, which is the documented extension point for
- * AI services.
+ * {@link RecordingToolProvider} so every call shows up as a card in the chat.
  */
 @ApplicationScoped
-public class GuardedToolProviderSupplier implements Supplier<ToolProvider> {
+public class RecordingToolProviderSupplier implements Supplier<ToolProvider> {
 
     @Inject
     @McpClientName("conference")
     McpClient conference;
 
     @Inject
-    ToolGuards guards;
+    ToolCallRecorder recorder;
 
     @Override
     public ToolProvider get() {
-        return new GuardedToolProvider(McpToolProvider.builder().mcpClients(conference).build(), guards);
+        return new RecordingToolProvider(McpToolProvider.builder().mcpClients(conference).build(), recorder);
     }
 }
