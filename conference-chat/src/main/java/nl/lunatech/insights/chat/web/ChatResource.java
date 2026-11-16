@@ -66,7 +66,7 @@ public class ChatResource {
     private ChatTurn agentTurn(String prompt) {
         turnLog.userPrompt(prompt);
         try {
-            String answer = agent.chat(prompt, switches.hardening());
+            String answer = agent.chat(prompt);
             return new ChatTurn(prompt, answer, toResults(turnLog.calls()));
         } catch (RuntimeException e) {
             List<ToolResult> results = new ArrayList<>(toResults(turnLog.calls()));
