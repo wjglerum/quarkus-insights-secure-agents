@@ -13,6 +13,16 @@
     const STEP_UP_TOOLS = new Set(['view_session_attendees', 'cancel_my_session']);
     const DESTRUCTIVE_TOOLS = new Set(['cancel_my_session']);
     const ATTENDEE_TOOLS = new Set(['bookmark_session', 'unbookmark_session', 'rate_session']);
+    // Not every card is an MCP call: send_email runs in the chat app, and the input and output
+    // guardrails block a whole turn. Label each card for what it is.
+    const LOCAL_TOOLS = new Set(['send_email']);
+    const TURN_GUARDS = new Set(['input guardrail', 'output guardrail']);
+
+    function cardLabels(tool) {
+        if (TURN_GUARDS.has(tool)) return ['guardrail.check', 'guardrail.verdict'];
+        if (LOCAL_TOOLS.has(tool)) return ['local.tool_call', 'local.tool_result'];
+        return ['mcp.tool_call', 'mcp.tool_result'];
+    }
 
     function el(tag, className, text) {
         const node = document.createElement(tag);
@@ -102,6 +112,9 @@
         if (DESTRUCTIVE_TOOLS.has(result.tool)) card.classList.add('destructive');
         if (result.guard) card.classList.add('guarded');
 
+        const [callType, resultType] = cardLabels(result.tool);
+        bind('callType').textContent = callType;
+        bind('resultType').textContent = resultType;
         bind('toolName').textContent = result.tool;
         bind('toolTier').textContent = result.guard ? 'guarded by ' + result.guard : tierOf(result.tool);
         bind('toolArgs').textContent = JSON.stringify(result.args || {}, null, 2);
@@ -122,6 +135,7 @@
         if (result.stepUpRequired) {
             return JSON.stringify({ error: 'insufficient_user_authentication' }, null, 2);
         }
+        if (TURN_GUARDS.has(result.tool)) return 'blocked';
         if (result.result == null) return result.error ? '(no result)' : 'null';
         return JSON.stringify(result.result, null, 2);
     }

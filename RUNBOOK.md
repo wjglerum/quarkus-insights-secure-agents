@@ -254,7 +254,7 @@ Stay logged in as **willem.jan**. Guardrails can stay on.
 ## Demo 4: Speaker-only actions (~8 min)
 
 1. Still **willem.jan**, no MFA (acr=1).
-2. Ask: *"Who signed up to attend my MCP Security talk?"* (calls `view_session_attendees`).
+2. Ask: *"Who signed up for my MCP Security talk?"* (calls `view_session_attendees`).
 3. `conference-mcp` refuses with the tool error `insufficient_user_authentication` before it calls the API. The chat shows it as an amber step-up card; point at the same line in the `conference-mcp` terminal. The error carries `acr_values=urn:insights:mfa` and `max_age=300`: the client re-authenticates at that level and retries.
 4. Do the OTP (the seed from pre-flight). The popup then asks for the delegation consent again: click **Yes**, or it ends without a token. The retry succeeds and an amber `VIEW_SESSION_ATTENDEES` event lands with `token_acr=urn:insights:mfa`.
 5. Ask: *"Cancel my MCP Security talk, reason is I want to go home early."* (calls `cancel_my_session`). A red `CANCEL_SESSION` event lands with the strong acr.
@@ -302,6 +302,7 @@ Avoid: "Keycloak can't nest `act`" (it can; it just never records the original c
 | Audit dashboard frozen | Hard refresh the browser tab; the poll is every 2 seconds. |
 | `quarkus:dev` fails with `Multiple checked templates exist for the template path ...` | Stale classes from an old package name in `target/`. Stop the app, run `./mvnw clean` from the repo root, start again. |
 | Demo state (bookmarks, rating, audit rows) suddenly gone | `conference-api` live-reloaded: any change under its `src/` or `target/classes` (an edit, a `mvn test` in that module) restarts it, and `drop-and-create` re-seeds the database. Redo the bookmark and rating from Demo 3. The same reload is a quick way to get a clean slate before going live. |
+| Dev UI > OpenID Connect > Keycloak provider says "Client not found" | The running Keycloak predates the `conference-api-devui` / `conference-mcp-devui` clients. Recycle it (see "Reload the realm"). |
 | Audit log shows stale rehearsal data | `docker rm -f` the Dev Services Postgres container and restart `conference-api`. Hibernate `drop-and-create` plus the seeders give you a clean slate. |
 | Step-up flow does not prompt for TOTP | The running Keycloak predates the realm's `Browser Stepup` flow. Recycle Keycloak so the realm re-imports (see "Reload the realm"). As a fallback, show the `insufficient_user_authentication` tool error and explain what a compliant client does next. |
 | Login fails with `invalid_scope` mentioning `delegation:client:conference-mcp` | The client is not allowed the delegation scope. For `conference-chat`: the running Keycloak predates the realm change, recycle it (see "Reload the realm"). For a DCR client: it registered with `delegation:client:conference-mcp`, which Keycloak's DCR does not match; it must register with `delegation:client`. For CIMD: Keycloak cached the client from an older metadata document, wait 5 minutes or recycle. |

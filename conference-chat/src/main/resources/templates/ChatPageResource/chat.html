@@ -119,13 +119,13 @@
       <p class="note" data-bind="note"></p>
       <article class="tool-card" data-bind-card>
         <header class="tool-head">
-          <span class="tool-type">mcp.tool_call</span>
+          <span class="tool-type" data-bind="callType">mcp.tool_call</span>
           <span class="tool-name" data-bind="toolName"></span>
           <span class="tool-tier" data-bind="toolTier"></span>
         </header>
         <pre class="tool-args" data-bind="toolArgs"></pre>
         <header class="tool-head subdued">
-          <span class="tool-type">mcp.tool_result</span>
+          <span class="tool-type" data-bind="resultType">mcp.tool_result</span>
         </header>
         <pre class="tool-result" data-bind="toolResult"></pre>
       </article>
