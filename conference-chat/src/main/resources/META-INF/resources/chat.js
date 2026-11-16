@@ -149,6 +149,7 @@
 
     function tierOf(tool) {
         if (STEP_UP_TOOLS.has(tool)) return 'step-up';
+        if (LOCAL_TOOLS.has(tool)) return 'local tool';
         if (tool === 'my_session_feedback') return 'speaker';
         if (tool.startsWith('my_') || ATTENDEE_TOOLS.has(tool)) return 'attendee';
         return 'public';
