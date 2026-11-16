@@ -3,7 +3,6 @@ package nl.lunatech.insights.api.web;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.POST;
@@ -85,7 +84,10 @@ public class SpeakerSessionResource {
         Attendee me = attendees.currentAttendee();
         if (me.speaker == null || s.speaker == null || !s.speaker.id.equals(me.speaker.id)) {
             audit.recordDenied(deniedAction, "session:" + id, "not a speaker on session");
-            throw new ForbiddenException("you are not a speaker on this session");
+            // A JSON body, not just the status: the MCP server passes it on, so the agent can say why.
+            throw new WebApplicationException(Response.status(Response.Status.FORBIDDEN)
+                    .entity(new ApiError("forbidden", "you are not a speaker on this session"))
+                    .build());
         }
         return s;
     }

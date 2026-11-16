@@ -64,6 +64,7 @@ The first start pulls the Postgres and Keycloak images. Allow 30 to 60 seconds o
 7. Do one full dry run after a clean Postgres restart (see Recovery), then restart once more: the dry run leaves your bookmarks, rating and cancellation behind.
 8. Notifications off, sleep off, backup recordings ready.
 9. There is no offline mode: every turn needs the model. If the model fails mid-talk, the turn shows "Agent failed" with the error; switch to the backup recording for that demo.
+10. Before starting the apps, run the guard tests once in a spare terminal and leave the output on screen for Demo 2: `./mvnw -pl conference-chat test -Dtest='GuardrailsTest,EmailToolGuardrailTest'`. Running it after `quarkus:dev` is up restarts the chat (see Demo 2).
 
 ## Time budget (75 minutes)
 
@@ -224,7 +225,7 @@ Switch them on one at a time and repeat the matching attack from Demo 1.
 
 Say why only the local tool has a tool guardrail: the MCP tools are checked by the MCP server and the API, for every client. A tool that lives in the agent has nobody else to check it. (Tool guardrails in quarkus-langchain4j wrap local `@Tool` methods only.)
 
-If there is time: `./mvnw -pl conference-chat test -Dtest='GuardrailsTest,EmailToolGuardrailTest'`.
+To show the guard tests, switch to the spare terminal with the pre-flight test run (step 10) and scroll through it. Don't run `mvn test` live: it recompiles into the same `target/classes` that `quarkus:dev` watches, so `conference-chat` restarts and every guardrail switch drops back to off.
 
 ## Demo 3: My agenda and my audit log (~7 min)
 
@@ -299,6 +300,8 @@ Avoid: "Keycloak can't nest `act`" (it can; it just never records the original c
 | Injected comment missing, or still asks for a cancel instead of an email | The database predates the seed change. Reset Postgres (see "Audit log shows stale rehearsal data"). |
 | `whats_on_now` returns nothing | Confirm `DEMO_NOW` env var is set, then `q` and restart `conference-api`. |
 | Audit dashboard frozen | Hard refresh the browser tab; the poll is every 2 seconds. |
+| `quarkus:dev` fails with `Multiple checked templates exist for the template path ...` | Stale classes from an old package name in `target/`. Stop the app, run `./mvnw clean` from the repo root, start again. |
+| Demo state (bookmarks, rating, audit rows) suddenly gone | `conference-api` live-reloaded: any change under its `src/` or `target/classes` (an edit, a `mvn test` in that module) restarts it, and `drop-and-create` re-seeds the database. Redo the bookmark and rating from Demo 3. The same reload is a quick way to get a clean slate before going live. |
 | Audit log shows stale rehearsal data | `docker rm -f` the Dev Services Postgres container and restart `conference-api`. Hibernate `drop-and-create` plus the seeders give you a clean slate. |
 | Step-up flow does not prompt for TOTP | The running Keycloak predates the realm's `Browser Stepup` flow. Recycle Keycloak so the realm re-imports (see "Reload the realm"). As a fallback, show the `insufficient_user_authentication` tool error and explain what a compliant client does next. |
 | Login fails with `invalid_scope` mentioning `delegation:client:conference-mcp` | The client is not allowed the delegation scope. For `conference-chat`: the running Keycloak predates the realm change, recycle it (see "Reload the realm"). For a DCR client: it registered with `delegation:client:conference-mcp`, which Keycloak's DCR does not match; it must register with `delegation:client`. For CIMD: Keycloak cached the client from an older metadata document, wait 5 minutes or recycle. |

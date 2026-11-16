@@ -171,7 +171,7 @@ main { flex: 1; display: grid; grid-template-columns: 18rem 1fr; gap: 0; min-hei
     background: var(--surface); color: var(--fg); padding: 1px 5px; border-radius: 4px;
 }
 .bubble-meta {
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
     font-family: var(--font-mono); font-size: 0.8125rem;
     color: var(--fg-dim); margin-bottom: 6px;
     text-transform: lowercase; letter-spacing: 0.04em;
