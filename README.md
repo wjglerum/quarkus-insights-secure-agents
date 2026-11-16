@@ -37,6 +37,7 @@ The guard tests run without a model: `./mvnw -pl conference-chat test -Dtest='Gu
 | `conference-mcp/`   | Quarkus MCP server (streamable HTTP). Exposes tools to AI clients and exchanges the user OAuth token (RFC 8693, delegated with an `act` claim when the user consented) for a `conference-api` token on every call. |
 | `conference-chat/`  | Quarkus chat client. OIDC web-app login, the `ConferenceAgent` AI service with its guardrails, LangChain4j MCP client to `conference-mcp`, Qute-rendered shell. |
 | `keycloak-realm.json` | Single shared realm export at the monorepo root. All three apps reference it via `../keycloak-realm.json`. |
+| `mcp-inspector-config.json` | MCP Inspector config for `conference-mcp` with the CIMD OAuth settings: `npx -y @modelcontextprotocol/inspector@latest --web --config mcp-inspector-config.json`. |
 | `DESIGN.md`         | Security decisions, trust boundaries and the deliberate demo shortcuts. |
 | `RUNBOOK.md`        | Stage-side runbook with the four-demo flow, the time budget and the env vars to set. |
 

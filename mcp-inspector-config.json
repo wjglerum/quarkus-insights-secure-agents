@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "conference-mcp": {
+      "type": "streamable-http",
+      "url": "http://localhost:8081/mcp",
+      "protocolEra": "modern",
+      "oauth": {
+        "clientId": "http://host.docker.internal:8081/cimd/mcp-inspector.json",
+        "scopes": "openid attendee delegation:client:conference-mcp",
+        "requestRefreshToken": false
+      }
+    }
+  }
+}
