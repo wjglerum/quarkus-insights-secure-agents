@@ -10,9 +10,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import nl.lunatech.insights.chat.agent.GuardrailSwitches;
 import nl.lunatech.insights.chat.agent.GuardrailSwitches.Guard;
-import nl.lunatech.insights.chat.agent.TurnLog.Outcome;
-import nl.lunatech.insights.chat.agent.TurnLog.ToolCall;
-import nl.lunatech.insights.chat.agent.tools.ToolCallRecorder;
 import nl.lunatech.insights.chat.security.CurrentUser;
 
 import java.util.Locale;
@@ -27,14 +24,13 @@ import java.util.Locale;
 @ApplicationScoped
 public class OwnAddressOnly implements ToolInputGuardrail {
 
+    public static final String REFUSAL_PREFIX = "Refused by the tool input guardrail";
+
     @Inject
     GuardrailSwitches switches;
 
     @Inject
     CurrentUser user;
-
-    @Inject
-    ToolCallRecorder recorder;
 
     @Override
     public ToolInputGuardrailResult validate(ToolInputGuardrailRequest request) {
@@ -42,10 +38,7 @@ public class OwnAddressOnly implements ToolInputGuardrail {
         if (!switches.on(Guard.TOOL_INPUT) || isMe(to) || isOwnAddress(to, user.email())) {
             return success();
         }
-        String why = refusalText(to);
-        recorder.record(new ToolCall(request.toolName(), recorder.parseArgs(request.arguments()),
-                Outcome.BLOCKED, why, "tool input guardrail"));
-        return failure(why);
+        return failure(refusalText(to));
     }
 
     public static boolean isMe(String to) {
@@ -57,7 +50,7 @@ public class OwnAddressOnly implements ToolInputGuardrail {
     }
 
     static String refusalText(String to) {
-        return "Refused by the tool input guardrail: send_email only sends to the signed-in user, "
+        return REFUSAL_PREFIX + ": send_email only sends to the signed-in user, "
                 + "not to " + to + ". Do not retry. Tell the user who asked for this mail.";
     }
 }

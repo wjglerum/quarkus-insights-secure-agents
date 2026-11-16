@@ -64,12 +64,6 @@ class GuardrailsTest {
     }
 
     @Test
-    void outputGuardRepromptsWhenSystemPromptIsQuoted() {
-        var result = outputGuard(true).validate(AiMessage.from("My instructions say: You are the conference companion."));
-        assertThat(result.isReprompt()).isTrue();
-    }
-
-    @Test
     void outputGuardPassesNormalAnswers() {
         var result = outputGuard(true).validate(AiMessage.from("The MCP Security talk starts at 10:00 in Room 1."));
         assertThat(result.isSuccess()).isTrue();

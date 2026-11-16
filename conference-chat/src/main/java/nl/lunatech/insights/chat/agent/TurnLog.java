@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Everything the agent did in one chat turn: the user's prompt and every tool call with its
- * outcome, so the chat can show each call as a card.
+ * Every tool call the agent made in one chat turn, with its outcome, so the chat can show each
+ * call as a card.
  */
 @RequestScoped
 public class TurnLog {
@@ -19,16 +19,7 @@ public class TurnLog {
     public record ToolCall(String tool, Map<String, Object> args, Outcome outcome, String resultText, String guard) {
     }
 
-    private String userPrompt = "";
     private final List<ToolCall> calls = new ArrayList<>();
-
-    public String userPrompt() {
-        return userPrompt;
-    }
-
-    public void userPrompt(String prompt) {
-        this.userPrompt = prompt;
-    }
 
     public void add(ToolCall call) {
         calls.add(call);

@@ -51,7 +51,7 @@ call gets a plain 401 instead of a login redirect (`ApiAwareAuthMechanism`).
 - `GuardrailsTest`, `OwnAddressOnlyTest`: the guardrails as plain unit tests, no model needed.
 - `EmailToolGuardrailTest`: a real AI service with a fake model; the tool input guardrail stops `send_email` to anyone but the user.
 - `AgentTurnTest`: how an agent turn becomes chat cards, with a stub agent.
-- `WiringSmokeTest`: `@QuarkusTest` checking that the agent, the MCP tool provider and the
+- `WiringSmokeTest`: `@QuarkusTest` checking that the agent and the
   Anthropic `ChatModel` resolve.
 - `ChatPlaywrightTest`: browser test of the OIDC login, the Qute shell and the step-up popup
   against a real Keycloak. It needs Chromium, which the Playwright driver downloads on first run.

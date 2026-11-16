@@ -5,17 +5,13 @@ import dev.langchain4j.agent.tool.Tool;
 import io.quarkiverse.langchain4j.guardrails.ToolInputGuardrails;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import nl.lunatech.insights.chat.agent.TurnLog.Outcome;
-import nl.lunatech.insights.chat.agent.TurnLog.ToolCall;
 import nl.lunatech.insights.chat.agent.guardrails.OwnAddressOnly;
 import nl.lunatech.insights.chat.security.CurrentUser;
 import org.jboss.logging.Logger;
 
 import java.time.Instant;
 import java.util.Deque;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -37,9 +33,6 @@ public class EmailTools {
     @Inject
     CurrentUser user;
 
-    @Inject
-    ToolCallRecorder recorder;
-
     private final Deque<Email> outbox = new ConcurrentLinkedDeque<>();
 
     @Tool("Email something to the signed-in user, such as their agenda or a summary of their feedback. "
@@ -51,12 +44,7 @@ public class EmailTools {
         String recipient = OwnAddressOnly.isMe(to) ? user.email() : to;
         outbox.addFirst(new Email(recipient, subject, body, Instant.now()));
         LOG.infof("Email to %s: %s", recipient, subject);
-        Map<String, Object> args = new LinkedHashMap<>();
-        args.put("to", to);
-        args.put("subject", subject);
-        String result = "{\"sent\":true,\"to\":\"" + recipient + "\",\"subject\":\"" + subject.replace("\"", "'") + "\"}";
-        recorder.record(new ToolCall("send_email", args, Outcome.OK, result, null));
-        return result;
+        return "{\"sent\":true,\"to\":\"" + recipient + "\",\"subject\":\"" + subject.replace("\"", "'") + "\"}";
     }
 
     public List<Email> outbox() {

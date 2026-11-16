@@ -51,7 +51,6 @@ public class ChatResource {
     }
 
     private ChatTurn agentTurn(String prompt) {
-        turnLog.userPrompt(prompt);
         try {
             String answer = agent.chat(prompt);
             return new ChatTurn(prompt, answer, toResults(turnLog.calls()));

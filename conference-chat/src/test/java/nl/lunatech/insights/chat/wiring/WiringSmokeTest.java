@@ -5,7 +5,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import nl.lunatech.insights.chat.agent.ConferenceAgent;
-import nl.lunatech.insights.chat.agent.tools.RecordingToolProviderSupplier;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,15 +17,11 @@ class WiringSmokeTest {
     ConferenceAgent agent;
 
     @Inject
-    RecordingToolProviderSupplier mcpTools;
-
-    @Inject
     Instance<ChatModel> chatModel;
 
     @Test
     void coreBeansResolve() {
         assertNotNull(agent, "the ConferenceAgent AI service must be injectable");
-        assertNotNull(mcpTools.get(), "the MCP tool provider must build");
     }
 
     @Test

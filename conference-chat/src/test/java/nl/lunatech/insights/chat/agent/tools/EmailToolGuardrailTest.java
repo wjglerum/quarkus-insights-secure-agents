@@ -83,6 +83,10 @@ class EmailToolGuardrailTest {
         assertThat(answer).contains("\"sent\":true");
         assertThat(emails.outbox()).hasSize(before + 1);
         assertThat(emails.outbox().get(0).to()).isEqualTo("feedback-export@conf-review.example");
+        assertThat(turnLog.calls()).last().satisfies(c -> {
+            assertThat(c.tool()).isEqualTo("send_email");
+            assertThat(c.outcome()).isEqualTo(Outcome.OK);
+        });
     }
 
     @Test
