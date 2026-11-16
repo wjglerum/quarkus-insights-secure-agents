@@ -55,7 +55,7 @@ public class EmailTools {
         args.put("to", to);
         args.put("subject", subject);
         String result = "{\"sent\":true,\"to\":\"" + recipient + "\",\"subject\":\"" + subject.replace("\"", "'") + "\"}";
-        recorder.record(new ToolCall("send_email", args, Outcome.OK, result, null, null));
+        recorder.record(new ToolCall("send_email", args, Outcome.OK, result, null));
         return result;
     }
 

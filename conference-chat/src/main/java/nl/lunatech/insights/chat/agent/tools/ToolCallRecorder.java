@@ -39,13 +39,13 @@ public class ToolCallRecorder {
             result = call.get();
         } catch (RuntimeException e) {
             String msg = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
-            record(new ToolCall(tool, args, isStepUp(msg) ? Outcome.STEP_UP : Outcome.ERROR, msg, null, null));
+            record(new ToolCall(tool, args, isStepUp(msg) ? Outcome.STEP_UP : Outcome.ERROR, msg, null));
             throw e;
         }
         String text = result.resultText();
         // Step-up is only ever an error. A successful result is data, even if it quotes the error code.
         Outcome outcome = !result.isError() ? Outcome.OK : isStepUp(text) ? Outcome.STEP_UP : Outcome.ERROR;
-        record(new ToolCall(tool, args, outcome, text, null, null));
+        record(new ToolCall(tool, args, outcome, text, null));
         return result;
     }
 

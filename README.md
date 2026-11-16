@@ -174,7 +174,7 @@ export ANTHROPIC_API_KEY=...
 cd conference-chat && ./mvnw quarkus:dev
 ```
 
-Without a key, or without network, the chat falls back to a scripted planner that only understands the demo prompts in its sidebar; set `DEMO_PLANNER=scripted` to skip the model entirely. The MCP calls, tokens and audit trail are the same either way.
+The chat needs the key and a network connection: every turn goes through the model.
 
 On first start Dev Services boots:
 

@@ -15,12 +15,8 @@ public class TurnLog {
 
     public enum Outcome { OK, ERROR, STEP_UP, BLOCKED }
 
-    /**
-     * One tool call. {@code shownToModel} is set when a guard changed the result before the model
-     * read it; {@code guard} names the guard that blocked or rewrote the call.
-     */
-    public record ToolCall(String tool, Map<String, Object> args, Outcome outcome,
-                           String resultText, String shownToModel, String guard) {
+    /** One tool call. {@code guard} names the guardrail that blocked it, or is null. */
+    public record ToolCall(String tool, Map<String, Object> args, Outcome outcome, String resultText, String guard) {
     }
 
     private String userPrompt = "";

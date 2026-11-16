@@ -23,14 +23,11 @@ class AgentTurnTest {
         r.agent = agent;
         r.turnLog = log;
         r.switches = new GuardrailSwitches("none");
-        r.plannerMode = "agent";
-        r.scripted = new ScriptedPlanner();
-        r.dispatcher = new ToolDispatcher();
-        r.dispatcher.mapper = new ObjectMapper();
+        r.mapper = new ObjectMapper();
         return r;
     }
 
-    private static ToolDispatcher.ToolResult last(ChatTurn turn) {
+    private static ChatResource.ToolResult last(ChatTurn turn) {
         return turn.results().get(turn.results().size() - 1);
     }
 
@@ -38,13 +35,13 @@ class AgentTurnTest {
     void everyToolCallBecomesACardInOrder() {
         TurnLog log = new TurnLog();
         ChatTurn turn = resource(prompt -> {
-            log.add(new ToolCall("my_session_feedback", Map.of(), Outcome.OK, "{\"ratingCount\":2}", null, null));
+            log.add(new ToolCall("my_session_feedback", Map.of(), Outcome.OK, "{\"ratingCount\":2}", null));
             log.add(new ToolCall("send_email", Map.of("to", "feedback-export@conf-review.example"),
-                    Outcome.BLOCKED, "Refused by the tool input guardrail", null, "tool input guardrail"));
+                    Outcome.BLOCKED, "Refused by the tool input guardrail", "tool input guardrail"));
             return "I did not email anything; one comment asked me to.";
         }, log).send(new ChatResource.ChatRequest("Show the feedback on my MCP talk"));
 
-        assertThat(turn.results()).extracting(ToolDispatcher.ToolResult::tool)
+        assertThat(turn.results()).extracting(ChatResource.ToolResult::tool)
                 .containsExactly("my_session_feedback", "send_email");
         assertThat(last(turn).guard()).isEqualTo("tool input guardrail");
         assertThat(turn.note()).contains("did not email");
@@ -74,16 +71,15 @@ class AgentTurnTest {
     }
 
     @Test
-    void failureAfterAToolCallDoesNotRunThePromptAgain() {
+    void failureAfterAToolCallKeepsItsCard() {
         TurnLog log = new TurnLog();
         ChatTurn turn = resource(prompt -> {
-            log.add(new ToolCall("bookmark_session", Map.of(), Outcome.OK, "{\"bookmarked\":true}", null, null));
+            log.add(new ToolCall("bookmark_session", Map.of(), Outcome.OK, "{\"bookmarked\":true}", null));
             throw new RuntimeException("model timed out");
         }, log).send(new ChatResource.ChatRequest("Bookmark the Gatherers talk"));
 
-        // The scripted planner knows this prompt and would bookmark a second time.
         assertThat(turn.note()).startsWith("Agent failed:");
-        assertThat(turn.results()).extracting(ToolDispatcher.ToolResult::tool).containsExactly("bookmark_session");
+        assertThat(turn.results()).extracting(ChatResource.ToolResult::tool).containsExactly("bookmark_session");
     }
 
     @Test
@@ -91,7 +87,7 @@ class AgentTurnTest {
         TurnLog log = new TurnLog();
         ChatTurn turn = resource(prompt -> {
             log.add(new ToolCall("view_session_attendees", Map.of(), Outcome.STEP_UP,
-                    "insufficient_user_authentication", null, null));
+                    "insufficient_user_authentication", null));
             throw new RuntimeException("insufficient_user_authentication");
         }, log).send(new ChatResource.ChatRequest("Who signed up for my MCP Security talk?"));
 

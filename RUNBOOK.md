@@ -31,8 +31,7 @@ What the audience sees in Demo 4: `conference-mcp` checks the `acr` on your toke
 | Variable | Purpose | Demo default |
 |----------|---------|--------------|
 | `DEMO_NOW` | Override the "current time" used by `whats_on_now`, `whats_next`, and the rating cutoff. | `2026-11-16T15:10:00+01:00` |
-| `ANTHROPIC_API_KEY` | The model behind `conference-chat` (Claude Sonnet). Without it the chat falls back to the scripted planner. | required in Terminal 3 |
-| `DEMO_PLANNER` | `agent` is the `@RegisterAiService` agent that may call several tools and reads their results. `scripted` never calls the model: use it when the network is gone. | `agent` |
+| `ANTHROPIC_API_KEY` | The model behind `conference-chat` (Claude Sonnet). Every chat turn needs it. | required in Terminal 3 |
 | `DEMO_GUARDRAILS` | Guardrails switched on at start: `none`, `all`, or a list. The sidebar switches change them live. | `none`, so the first attack lands |
 
 Dev Services wires Keycloak and Postgres automatically; there is no production profile.
@@ -64,7 +63,7 @@ The first start pulls the Postgres and Keycloak images. Allow 30 to 60 seconds o
 6. Wired network if you can. Run `npx -y @modelcontextprotocol/inspector@latest` once beforehand so it is cached; it is the backup client and the CIMD answer in Q&A.
 7. Do one full dry run after a clean Postgres restart (see Recovery), then restart once more: the dry run leaves your bookmarks, rating and cancellation behind.
 8. Notifications off, sleep off, backup recordings ready.
-9. Model fallback: if the model fails, the chat answers the sidebar prompts from a scripted planner and says so in the reply ("Scripted fallback (LLM unavailable)"). The scripted planner does not play the attacks, so Demo 1 and 2 need the model. With no network at all, restart `conference-chat` with `DEMO_PLANNER=scripted` and run Demo 3 and 4 only.
+9. There is no offline mode: every turn needs the model. If the model fails mid-talk, the turn shows "Agent failed" with the error; switch to the backup recording for that demo.
 
 ## Time budget (75 minutes)
 

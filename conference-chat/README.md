@@ -26,8 +26,7 @@ monorepo-root `keycloak-realm.json`.
 `conference-mcp` (port 8081) and `conference-api` (port 8080) must be running for tool calls to
 succeed.
 
-Without an API key, or when the model is unreachable, the chat falls back to `ScriptedPlanner`,
-which only understands the demo prompts in the sidebar.
+Every turn goes through the model, so the chat needs `ANTHROPIC_API_KEY` and a network connection.
 
 ## Endpoints
 
@@ -49,10 +48,10 @@ call gets a plain 401 instead of a login redirect (`ApiAwareAuthMechanism`).
 ./mvnw test
 ```
 
-- `GuardrailsTest`, `ToolGuardsTest`: the guardrails as plain unit tests, no model needed.
+- `GuardrailsTest`, `OwnAddressOnlyTest`: the guardrails as plain unit tests, no model needed.
+- `EmailToolGuardrailTest`: a real AI service with a fake model; the tool input guardrail stops `send_email` to anyone but the user.
 - `AgentTurnTest`: how an agent turn becomes chat cards, with a stub agent.
-- `ScriptedPlannerTest`: the scripted fallback matches the demo prompts.
-- `WiringSmokeTest`: `@QuarkusTest` checking that the agent, the guarded tool provider and the
+- `WiringSmokeTest`: `@QuarkusTest` checking that the agent, the MCP tool provider and the
   Anthropic `ChatModel` resolve.
 - `ChatPlaywrightTest`: browser test of the OIDC login, the Qute shell and the step-up popup
   against a real Keycloak. It needs Chromium, which the Playwright driver downloads on first run.
@@ -79,9 +78,8 @@ The LangChain4j extensions come from the Quarkiverse BOM
 
 | Env var | Purpose | Default |
 |---------|---------|---------|
-| `ANTHROPIC_API_KEY` | API key for Claude. | unset (scripted fallback) |
-| `DEMO_PLANNER` | `agent`: the AI service with guardrails. `scripted`: no model at all. | `agent` |
-| `DEMO_GUARDRAILS` | Guardrails switched on at start: `none`, `all`, or a list of `input,prompt,tool-intent,tool-output,output`. | `none` |
+| `ANTHROPIC_API_KEY` | API key for Claude. Required. | unset |
+| `DEMO_GUARDRAILS` | Guardrails switched on at start: `none`, `all`, or a list of `input,tool-input,output`. | `none` |
 | `CONFERENCE_MCP_URL` | MCP endpoint (streamable HTTP). | `http://localhost:8081/mcp` |
 
 ## Quarkus guides

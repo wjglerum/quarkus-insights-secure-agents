@@ -44,7 +44,7 @@ public class OwnAddressOnly implements ToolInputGuardrail {
         }
         String why = refusalText(to);
         recorder.record(new ToolCall(request.toolName(), recorder.parseArgs(request.arguments()),
-                Outcome.BLOCKED, why, null, "tool input guardrail"));
+                Outcome.BLOCKED, why, "tool input guardrail"));
         return failure(why);
     }
 
